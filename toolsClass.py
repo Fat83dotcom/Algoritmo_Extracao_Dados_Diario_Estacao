@@ -112,30 +112,38 @@ class OperationDataBase(DataBase):
 
 
 class FileRetriever:
-    def __init__(self, path) -> None:
+    def __init__(self, pathTarget, extension='.csv') -> None:
         self.__foundFiles: list = []
-        self.__path = path
+        self.__pathTarget = pathTarget
+        self.__extensionFile = extension
 
-    def __fileHunter(self) -> None:
-        for root, _, file_ in os.walk(self.__path):
+    def __findFiles(self) -> None:
+        for root, _, file_ in os.walk(self.__pathTarget):
             for targetFile in file_:
-                if '.csv' in targetFile:
+                if self.__extensionFile in targetFile:
                     self.__foundFiles.append(os.path.join(root, targetFile))
 
-    def oneFileHunter(self, fileName: str) -> str:
-        for root, _, file_ in os.walk(self.__path):
+    def findOneFile(self, fileName: str):
+        for root, _, file_ in os.walk(self.__pathTarget):
             for targetFile in file_:
                 if fileName in targetFile:
                     return str(os.path.join(root, targetFile))
                 else:
                     return 'Arquivo não encontrado.'
 
-    def findTargetFile(self, month, year) -> str:
-        pass
+    def generatorPathTargetFile(self, month, year):
+        try:
+            pathFile = os.path.join(
+                self.__pathTarget,
+                f'{month}_{year}_Modlog{self.__extensionFile}'
+            )
+            return pathFile
+        except Exception as e:
+            print(e.__class__.__name__, e)
 
     def getFoundFiles(self):
         try:
-            self.__fileHunter()
+            self.__findFiles()
             if self.__foundFiles:
                 for files in self.__foundFiles:
                     yield files
@@ -154,23 +162,23 @@ class DataExtractor:
             def __extractKey(listTarget):
                 return listTarget[0][:11]
 
-            PATH_CSV = Path(__file__).parent / file
+            PATH_CSV = Path(__file__).parent / file  # type: ignore
             with open(PATH_CSV, 'r', encoding='utf-8') as myCsv:
                 reader = csv.reader((line.replace('\0', '') for line in myCsv))
                 groups = groupby(reader, key=__extractKey)
                 for date, data in groups:
-                    self.__extractData.append((date, [
+                    self.__extractData.append((date, (
                         (
-                            float(value[1]),
-                            float(value[2]),
-                            float(value[3]),
-                            float(value[4])
+                            float(val[1]),
+                            float(val[2]),
+                            float(val[3]),
+                            float(val[4])
                         )
                         if
-                        value[1] and value[2] and value[3] and value[4] != ''
+                        val[1] and val[2] and val[3] and val[4] != ''
                         else (0, 0, 0, 0)
-                        for value in data
-                    ]))
+                        for val in data
+                    )))
         except (IndexError, Exception) as e:
             raise e
 

@@ -1,16 +1,16 @@
 from toolsClass import OperationDataBase, DataExtractor, FileRetriever
-from datetime import datetime
+from datetime import datetime, timedelta
 
 
 class DailyDate:
-    def __init__(self, ) -> None:
+    def __init__(self) -> None:
         self.__dailyDate: list = []
-        self.__todayDate = datetime.now()
+        self.__todayDate: datetime = datetime.now()
 
     def extractedDailyData(self, pathFile: str, dateTarget: int) -> None:
         with open(pathFile, 'r', encoding='utf-8') as file:
             data = file.readlines()
-            extractedDataTarget: list = []
+            extractedDataTarget: list = [str, str, str, str, str]
             count = -1
             while True:
                 datas = data[count].strip()[:3]
@@ -19,17 +19,26 @@ class DailyDate:
                 else:
                     extractedDataTarget.append(data[count].strip().split(','))
                     count -= 1
+        return extractedDataTarget  # type: ignore
+
+    def yesterdayDate(self):
+        return self.__todayDate - timedelta(1)
+
+    def getTodayDate(self) -> datetime:
+        return self.__todayDate
 
 
 if __name__ == '__main__':
     try:
-        dB = OperationDataBase('dado_diario')
+        # dB = OperationDataBase('dado_diario')
         r = FileRetriever('.')
-        for file in r.getFoundFiles():
-            print(file)
+        d = DailyDate()
+        fileTarget: str = r.generatorPathTargetFile('abr', '2022')
+        print(d.getTodayDate())
+        print(d.yesterdayDate())
+        # data = d.extractedDailyData(fileTarget, 30)
+        # print(data)
 
-        print('hello')
-        f = date
-        dB.closeConnection()
+        # dB.closeConnection()
     except Exception as e:
         print(e.__class__.__name__, e)
