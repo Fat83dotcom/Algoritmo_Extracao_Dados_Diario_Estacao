@@ -1,4 +1,4 @@
-from toolsClass import OperationDataBase, DataExtractor, FileRetriever
+from toolsClass import OperationDataBase, DataProcessor, FileRetriever
 from datetime import datetime, timedelta
 
 
