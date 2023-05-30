@@ -1,10 +1,12 @@
 import os
 import csv
+import datetime
 import psycopg2
 from abc import ABC
 from pathlib import Path
 from itertools import groupby
 from databaseSettings import CONFIG
+from statistics import mean, median, mode
 
 
 class DataBase(ABC):
