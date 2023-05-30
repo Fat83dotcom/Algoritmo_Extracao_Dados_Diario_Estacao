@@ -3,11 +3,14 @@ from datetime import datetime, timedelta
 
 
 class DailyDate:
+    '''Extrai os dados do dia anterior'''
     def __init__(self) -> None:
         self.__dailyDate: list = []
         self.__todayDate: datetime = datetime.now()
 
     def extractedDailyData(self, pathFile: str, dateTarget: int) -> None:
+        '''Informe o caminho do arquivo e a data da extração. Os dados
+        são salvos no atributo __dailyDate: list'''
         with open(pathFile, 'r', encoding='utf-8') as file:
             data = file.readlines()
             extractedDataTarget: list = [str, str, str, str, str]
