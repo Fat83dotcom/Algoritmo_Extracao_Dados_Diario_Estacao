@@ -13,7 +13,7 @@ class DailyDate:
         são salvos no atributo __dailyDate: list'''
         with open(pathFile, 'r', encoding='utf-8') as file:
             data = file.readlines()
-            extractedDataTarget: list = [str, str, str, str, str]
+            extractedDataTarget: list = []
             count = -1
             while True:
                 datas = data[count].strip()[:3]
