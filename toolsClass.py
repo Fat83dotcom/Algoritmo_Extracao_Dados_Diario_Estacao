@@ -186,3 +186,175 @@ class DataExtractor:
 
     def getExtractData(self) -> list:
         return self.__extractData
+
+
+class DataProcessor:
+    def __init__(self) -> None:
+        self.__dataProcessed: list = []
+        self.__numbersOfMonth = {
+            'jan': 1,
+            'fev': 2,
+            'mar': 3,
+            'abr': 4,
+            'mai': 5,
+            'jun': 6,
+            'jul': 7,
+            'ago': 8,
+            'set': 9,
+            'out': 10,
+            'nov': 11,
+            'dez': 12
+        }
+        self.__numbersOfMonthEnglish = {
+            'jan': 1,
+            'feb': 2,
+            'mar': 3,
+            'apr': 4,
+            'may': 5,
+            'jun': 6,
+            'jul': 7,
+            'aug': 8,
+            'sep': 9,
+            'oct': 10,
+            'nov': 11,
+            'dec': 12
+        }
+
+    def __dateTransformer(self, dateOld: str) -> str:
+        if dateOld[3:6] in self.__numbersOfMonth:
+            for k, v in self.__numbersOfMonth.items():
+                if k == dateOld[3:6]:
+                    nD = dateOld.replace(k, str(v))
+                    if int(nD[3:5].strip()) > 9:
+                        dTStr = f'{nD[5:]}/{nD[3:5]}/{nD[:2]} 00:00:00'.strip()
+                        nD = datetime.strptime(dTStr, '%Y/%m/%d %H:%M:%S')
+                    else:
+                        dTStr = f'{nD[5:]}/{nD[3]}/{nD[:2]} 00:00:00'.strip()
+                        nD = datetime.strptime(dTStr, '%Y/%m/%d %H:%M:%S')
+        else:
+            for k, v in self.__numbersOfMonthEnglish.items():
+                if k == dateOld[3:6]:
+                    nD = dateOld.replace(k, str(v))
+                    if int(nD[3:5].strip()) > 9:
+                        dTStr = f'{nD[5:]}/{nD[3:5]}/{nD[:2]} 00:00:00'.strip()
+                        nD = datetime.strptime(dTStr, '%Y/%m/%d %H:%M:%S')
+                    else:
+                        dTStr = f'{nD[5:]}/{nD[3]}/{nD[:2]} 00:00:00'.strip()
+                        nD = datetime.strptime(dTStr, '%Y/%m/%d %H:%M:%S')
+
+        newDate = nD.strftime('%Y/%m/%d %H:%M:%S')
+        return newDate
+
+    def processedData(self, listTarget) -> None:
+        for groupData in listTarget:
+            currentData: dict = {
+                'date': '',
+                'umidity': {
+                    'minimum': float,
+                    'maximum': float,
+                    'mean': float,
+                    'median': float,
+                    'mode': float
+                },
+                'press': {
+                    'minimum': float,
+                    'maximum': float,
+                    'mean': float,
+                    'median': float,
+                    'mode': float
+                },
+                'tempIndoor': {
+                    'minimum': float,
+                    'maximum': float,
+                    'mean': float,
+                    'median': float,
+                    'mode': float
+                },
+                'tempOutdoor': {
+                    'minimum': float,
+                    'maximum': float,
+                    'mean': float,
+                    'median': float,
+                    'mode': float
+                }
+            }
+            humidity: list = []
+            press: list = []
+            tempIndoor: list = []
+            tempOutdoor: list = []
+
+            for data in groupData[1]:
+                humidity.append(data[0])
+                press.append(data[1])
+                tempIndoor.append(data[2])
+                tempOutdoor.append(data[3])
+
+            currentData.update({'date': self.__dateTransformer(groupData[0])})
+            currentData.update({'umidity': {
+                    'minimum': round(min(humidity), 2),
+                    'maximum': round(max(humidity), 2),
+                    'mean': round(mean(humidity), 2),
+                    'median': round(median(humidity), 2),
+                    'mode': round(mode(humidity), 2)
+                }})
+            currentData.update({'press': {
+                    'minimum': round(min(press), 2),
+                    'maximum': round(max(press), 2),
+                    'mean': round(mean(press), 2),
+                    'median': round(median(press), 2),
+                    'mode': round(mode(press), 2)
+                }})
+            currentData.update({'tempIndoor': {
+                    'minimum': round(min(tempIndoor), 2),
+                    'maximum': round(max(tempIndoor), 2),
+                    'mean': round(mean(tempIndoor), 2),
+                    'median': round(median(tempIndoor), 2),
+                    'mode': round(mode(tempIndoor), 2)
+                }})
+            currentData.update({'tempOutdoor': {
+                    'minimum': round(min(tempOutdoor), 2),
+                    'maximum': round(max(tempOutdoor), 2),
+                    'mean': round(mean(tempOutdoor), 2),
+                    'median': round(median(tempOutdoor), 2),
+                    'mode': round(mode(tempOutdoor), 2)
+                }})
+            self.__dataProcessed.append(currentData)
+
+    def getDataProcessed(self) -> list:
+        return self.__dataProcessed
+
+
+class ConverterMonths:
+    def __init__(self) -> None:
+        self.__numbersOfMonth = {
+            '01': 'jan',
+            '02': 'fev',
+            '03': 'mar',
+            '04': 'abr',
+            '05': 'mai',
+            '06': 'jun',
+            '07': 'jul',
+            '08': 'ago',
+            '09': 'set',
+            '10': 'out',
+            '11': 'nov',
+            '12': 'dez'
+        }
+        self.__numbersOfMonthEnglish = {
+            '01': 'jan',
+            '02': 'feb',
+            '03': 'mar',
+            '04': 'apr',
+            '05': 'may',
+            '06': 'jun',
+            '07': 'jul',
+            '08': 'aug',
+            '09': 'sep',
+            '10': 'oct',
+            '11': 'nov',
+            '12': 'dec'
+        }
+
+    def getMonths(self, numberOfMont: str) -> str:
+        if numberOfMont in self.__numbersOfMonth:
+            return self.__numbersOfMonth[numberOfMont]
