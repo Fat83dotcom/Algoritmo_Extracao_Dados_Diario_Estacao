@@ -164,13 +164,13 @@ class FileRetriever:
                     return str(os.path.join(root, targetFile))
         return 'Arquivo não encontrado.'
 
-    def generatorPathTargetFile(self, month, year):
+    def __generatorNameFile(self, month, year):
         try:
-            pathFile = os.path.join(
+            nameFile = os.path.join(
                 self.__pathTarget,
-                f'{month}_{year}_Modlog{self.__extensionFile}'
+                f'{month}_{year}_log{self.__extensionFile}'
             )
-            return pathFile
+            return nameFile
         except Exception as e:
             print(e.__class__.__name__, e)
 
