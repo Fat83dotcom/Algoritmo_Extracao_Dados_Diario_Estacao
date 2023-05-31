@@ -21,7 +21,6 @@ class DataBase(ABC):
         self.con.close()
 
     def toExecute(self, sql):
-
         self.cursor.execute(sql)
 
     def toExecuteMogrify(self, sql):
