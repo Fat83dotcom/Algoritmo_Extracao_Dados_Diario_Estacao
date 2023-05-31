@@ -435,3 +435,101 @@ class ConverterMonths:
     def getMonths(self, numberOfMont: str) -> str:
         if numberOfMont in self.__numbersOfMonth:
             return self.__numbersOfMonth[numberOfMont]
+
+
+class DailyDate:
+    '''Extrai os dados do dia anterior'''
+    def __init__(self) -> None:
+        self.__todayDate: datetime = datetime.now()
+
+    def yesterdayDate(self) -> datetime:
+        '''Retorna a data de ontem.'''
+        return self.__todayDate - timedelta(1)
+
+    def getTodayDate(self) -> datetime:
+        '''Retorna o atributo __todayDate, contendo a data atual.'''
+        return self.__todayDate
+
+    def extractDay(self, date: datetime) -> str:
+        '''Retorna o dia da data informada.'''
+        dd = datetime.strptime(str(date), '%Y-%m-%d %H:%M:%S.%f')
+        extratcDay = dd.strftime('%d')
+        return extratcDay
+
+    def extractMonth(self, date: datetime) -> str:
+        '''Retorna o mês da data informada.'''
+        dm = datetime.strptime(str(date), '%Y-%m-%d %H:%M:%S.%f')
+        extratcMonth = dm.strftime('%m')
+        return extratcMonth
+
+    def extractYear(self, date: datetime) -> str:
+        '''Retorna o ano da data informada.'''
+        dt = datetime.strptime(str(date), '%Y-%m-%d %H:%M:%S.%f')
+        extratcYear = dt.strftime('%Y')
+        return extratcYear
+
+
+class DataModel:
+    '''Modelo dos dados do banco'''
+    def __init__(self, dB: OperationDataBase) -> None:
+        self.DBInstance = dB
+
+    def executeDB(self, iterable: dict) -> None:
+        '''
+            Insere os dados extraidos no modelo do BD.
+            Retorna -> None
+        '''
+        for dataDays in iterable:
+            try:
+                self.DBInstance.toExecute('SET datestyle to ymd')
+                self.DBInstance.insertCollumn(
+                    (dataDays['date'],
+                        dataDays['umidity']['mean'],
+                        dataDays['umidity']['minimum'],
+                        dataDays['umidity']['maximum'],
+                        dataDays['umidity']['median'],
+                        dataDays['umidity']['mode'],
+                        dataDays['press']['mean'],
+                        dataDays['press']['minimum'],
+                        dataDays['press']['maximum'],
+                        dataDays['press']['median'],
+                        dataDays['press']['mode'],
+                        dataDays['tempIndoor']['mean'],
+                        dataDays['tempIndoor']['minimum'],
+                        dataDays['tempIndoor']['maximum'],
+                        dataDays['tempIndoor']['median'],
+                        dataDays['tempIndoor']['mode'],
+                        dataDays['tempOutdoor']['mean'],
+                        dataDays['tempOutdoor']['minimum'],
+                        dataDays['tempOutdoor']['maximum'],
+                        dataDays['tempOutdoor']['median'],
+                        dataDays['tempOutdoor']['mode']), collumn='(dia, \
+                        media_umidade, \
+                        minimo_umidade, \
+                        maximo_umidade, \
+                        mediana_umidade, \
+                        moda_umidade, \
+                        media_pressao, \
+                        minimo_pressao, \
+                        maximo_pressao, \
+                        mediana_pressao, \
+                        moda_pressao, \
+                        media_temp_int, \
+                        minimo_temp_int, \
+                        maximo_temp_int, \
+                        mediana_temp_int, \
+                        moda_temp_int, \
+                        media_temp_ext, \
+                        minimo_temp_ext, \
+                        maximo_temp_ext, \
+                        mediana_temp_ext, \
+                        moda_temp_ext\
+                    )')
+            except Exception as e:
+                print(e.__class__.__name__, e)
+                continue
+
+
+if __name__ == '__main__':
+    m = ConverterMonths()
+    print(m.getMonths('05'))
