@@ -1,11 +1,11 @@
 import os
 import csv
-import datetime
 import psycopg2
 from abc import ABC
 from pathlib import Path
 from itertools import groupby
 from databaseSettings import CONFIG
+from datetime import datetime, timedelta
 from statistics import mean, median, mode
 
 
