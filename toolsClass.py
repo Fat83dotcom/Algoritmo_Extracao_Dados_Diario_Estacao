@@ -402,6 +402,9 @@ class DataProcessor:
 
 
 class ConverterMonths:
+    '''
+        Converte os números dos meses em suas abreviações.
+    '''
     def __init__(self) -> None:
         self.__numbersOfMonth = {
             '01': 'jan',
@@ -433,6 +436,10 @@ class ConverterMonths:
         }
 
     def getMonths(self, numberOfMont: str) -> str:
+        '''
+            Informe uma string contendo o número correspondente ao mês.
+            Retorna a abreviação do mês.
+        '''
         if numberOfMont in self.__numbersOfMonth:
             return self.__numbersOfMonth[numberOfMont]
 
