@@ -162,8 +162,7 @@ class FileRetriever:
             for targetFile in file_:
                 if fileName in targetFile:
                     return str(os.path.join(root, targetFile))
-                else:
-                    return 'Arquivo não encontrado.'
+        return 'Arquivo não encontrado.'
 
     def generatorPathTargetFile(self, month, year):
         try:
