@@ -61,6 +61,7 @@ class DataBase(ABC):
 
 
 class OperationDataBase(DataBase):
+    '''Realiza as operações com o PostgreSQL'''
 
     def __init__(self, table: str) -> None:
         self.__table = table
@@ -73,6 +74,12 @@ class OperationDataBase(DataBase):
         )
 
     def updateColumn(self, collumn, condiction, update):
+        '''
+            Atualiza colunas.
+            Parametros: collumn -> Nome da coluna
+            condition -> Condição de atualização
+            update -> Valor da modificação
+        '''
         sql = self.generatorSQLUpdate(
             update, table_name=self.__table,
             collumn_name=collumn, condiction=condiction)
@@ -84,6 +91,12 @@ class OperationDataBase(DataBase):
             raise e
 
     def insertCollumn(self, *args, collumn):
+        '''
+            Insere dados na tabela.
+            Parametros:
+            *args -> tupla com os valores, em ordem com a coluna
+            collumn -> Nome das colunas, na ordem de inserção.
+        '''
         try:
             sql = self.generatorSQLInsert(
                 *args, colunm_names=collumn, table_name=self.__table
@@ -95,6 +108,12 @@ class OperationDataBase(DataBase):
             raise e
 
     def insertCollumnMogrify(self, *args, collumn):
+        '''
+            Insere dados na tabela usando o comando pysicopg2 mogrify().
+            Parametros:
+            *args -> tupla com os valores, em ordem com a coluna
+            collumn -> Nome das colunas, na ordem de inserção.
+        '''
         try:
             sql = self.generatorSQLInsert(
                 *args, colunm_names=collumn, table_name=self.__table
@@ -106,9 +125,16 @@ class OperationDataBase(DataBase):
             raise e
 
     def closeConnection(self):
+        '''
+            Fecha a conexão com o banco.
+            Deve ser usado ao final das transações.
+        '''
         return self.Bd.closeConnection()
 
     def toExecute(self, sql):
+        '''
+            Executa um comando SQL avulso.
+        '''
         return self.Bd.toExecute(sql)
 
 
@@ -159,35 +185,71 @@ class DataExtractor:
         self.__extractData: list = []
 
     def dataExtract(self, file: list) -> None:
+        '''
+            Extrai dados de arquivos .csv.
+            Paramtros:
+            file -> Nome do arquivo.
+            O dados são salvos no atributo self.__extractData
+            pelo metodo de classe self.__groupbyDataByDate
+        '''
         try:
-            def __extractKey(listTarget):
-                return listTarget[0][:11]
-
             PATH_CSV = Path(__file__).parent / file  # type: ignore
             with open(PATH_CSV, 'r', encoding='utf-8') as myCsv:
                 reader = csv.reader((line.replace('\0', '') for line in myCsv))
-                groups = groupby(reader, key=__extractKey)
-                for date, data in groups:
-                    self.__extractData.append((date, (
-                        (
-                            float(val[1]),
-                            float(val[2]),
-                            float(val[3]),
-                            float(val[4])
-                        )
-                        if
-                        val[1] and val[2] and val[3] and val[4] != ''
-                        else (0, 0, 0, 0)
-                        for val in data
-                    )))
+                self.__groupbyDataByDate(reader)
         except (IndexError, Exception) as e:
             raise e
 
+    def extractedDailyData(self, pathFile: str, dateTarget: int) -> list:
+        '''Informe o caminho do arquivo e a data da extração. Retorna os dados
+        retirados do arquivo'''
+        with open(pathFile, 'r', encoding='utf-8') as file:
+            data = file.readlines()
+            extractDataTarget: list = []
+            counter = -1
+            while True:
+                datas = data[counter].strip()[:3]
+                if int(datas) == dateTarget:
+                    extractDataTarget.append(data[counter].strip().split(','))
+                    counter -= 1
+                elif int(datas) > dateTarget:
+                    counter -= 1
+                else:
+                    break
+        self.__groupbyDataByDate(extractDataTarget)
+
+    def __groupbyDataByDate(self, iterable):
+        '''
+            Agrupa os dados por data.
+            Salva os dados no atributo self.__stractData
+        '''
+        def __extractKey(listTarget):
+            return listTarget[0][:11]
+
+        groups = groupby(iterable, key=__extractKey)
+        for date, data in groups:
+            self.__extractData.append((date, [
+                        (
+                            float(value[1]),
+                            float(value[2]),
+                            float(value[3]),
+                            float(value[4])
+                        )
+                        if
+                        value[1] and value[2] and value[3] and value[4] != ''
+                        else (0, 0, 0, 0)
+                        for value in data
+                    ]))
+
     def getExtractData(self) -> list:
+        '''
+        Retorna o atributo self.__extractData
+        '''
         return self.__extractData
 
 
 class DataProcessor:
+    '''Processa os dados e prapara-os para entrar no banco de dados.'''
     def __init__(self) -> None:
         self.__dataProcessed: list = []
         self.__numbersOfMonth = {
@@ -220,6 +282,10 @@ class DataProcessor:
         }
 
     def __dateTransformer(self, dateOld: str) -> str:
+        '''
+        Metodo de classe que formata datas no formato do Banco de Dados.
+        Retorna uma string com a data formatada.
+        '''
         if dateOld[3:6] in self.__numbersOfMonth:
             for k, v in self.__numbersOfMonth.items():
                 if k == dateOld[3:6]:
@@ -245,6 +311,10 @@ class DataProcessor:
         return newDate
 
     def processedData(self, listTarget) -> None:
+        '''
+        Processa a lista com os dados agrupados por data.
+        Os dados são salvos no atributo self.__dataProcessed.
+        '''
         for groupData in listTarget:
             currentData: dict = {
                 'date': '',
@@ -320,6 +390,9 @@ class DataProcessor:
             self.__dataProcessed.append(currentData)
 
     def getDataProcessed(self) -> list:
+        '''
+        Retorna o atributo self.__dataProcessed
+        '''
         return self.__dataProcessed
 
 
