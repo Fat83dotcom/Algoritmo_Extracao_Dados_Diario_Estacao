@@ -144,6 +144,13 @@ class FileRetriever:
         self.__pathTarget = pathTarget
         self.__extensionFile = extension
 
+    def findYesterdayFile(self, month, year) -> None:
+        try:
+            fileName = self.__generatorNameFile(month, year)
+            self.__foundFiles.append(self.findOneFile(fileName[2:]))
+        except Exception as e:
+            raise (e.__name__.__class__, e)
+
     def __findFiles(self) -> None:
         for root, _, file_ in os.walk(self.__pathTarget):
             for targetFile in file_:
