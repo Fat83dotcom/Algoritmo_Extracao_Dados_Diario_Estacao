@@ -176,7 +176,6 @@ class FileRetriever:
 
     def getFoundFiles(self):
         try:
-            self.__findFiles()
             if self.__foundFiles:
                 for files in self.__foundFiles:
                     yield files
