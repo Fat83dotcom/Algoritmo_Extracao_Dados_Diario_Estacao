@@ -147,7 +147,7 @@ class FileRetriever:
     def findYesterdayFile(self, month, year) -> None:
         try:
             fileName = self.__generatorNameFile(month, year)
-            self.__foundFiles.append(self.findOneFile(fileName[2:]))
+            self.__foundFiles.append(self.findOneFile(fileName))
         except Exception as e:
             raise (e.__name__.__class__, e)
 
@@ -167,7 +167,6 @@ class FileRetriever:
     def __generatorNameFile(self, month, year):
         try:
             nameFile = os.path.join(
-                self.__pathTarget,
                 f'{month}_{year}_log{self.__extensionFile}'
             )
             return nameFile
