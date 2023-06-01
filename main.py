@@ -1,12 +1,17 @@
 from toolsClass import OperationDataBase, DataProcessor, FileRetriever
 from toolsClass import DataExtractor, ConverterMonths, DailyDate, DataModel
+import os
 
 
 if __name__ == '__main__':
     try:
+        folderFiles = os.path.join(
+            'home', 'fernando', 'Estacao'
+        )
+        print(folderFiles)
         dB = OperationDataBase('dado_diario')
         cM = ConverterMonths()
-        fR = FileRetriever('.')
+        fR = FileRetriever(f'/{folderFiles}')
         dD = DailyDate()
         dE = DataExtractor()
         dP = DataProcessor()
