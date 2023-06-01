@@ -475,7 +475,7 @@ class ConverterMonths:
 
 
 class DailyDate:
-    '''Extrai os dados do dia anterior'''
+    '''Manipula datas.'''
     def __init__(self) -> None:
         self.__todayDate: datetime = datetime.now()
 
