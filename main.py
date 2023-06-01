@@ -8,7 +8,6 @@ if __name__ == '__main__':
         folderFiles = os.path.join(
             'home', 'fernando', 'Estacao'
         )
-        print(folderFiles)
         dB = OperationDataBase('dado_diario')
         cM = ConverterMonths()
         fR = FileRetriever(f'/{folderFiles}')
@@ -21,7 +20,6 @@ if __name__ == '__main__':
         year = dD.extractYear(dD.yesterdayDate())
         month = cM.getMonths(str(dD.extractMonth(dD.yesterdayDate())))
         fR.findYesterdayFile(month, year)
-        print(list(fR.getFoundFiles()))
         for file in fR.getFoundFiles():
             data: list = dE.extractedDailyData(file, int(day))
             result = dE.getExtractData()
