@@ -10,6 +10,8 @@ from statistics import mean, median, mode
 
 
 class DataBase(ABC):
+    '''Classe abstrata que fornece os serviços básicos
+    para as operações do banco de dados'''
     def __init__(
             self, host='', port='', dbname='', user='', password=''
             ) -> None:
@@ -139,12 +141,20 @@ class OperationDataBase(DataBase):
 
 
 class FileRetriever:
+    '''
+        Busca arquivos, manipula caminhos e nomes de arquivos.
+    '''
     def __init__(self, pathTarget, extension='.csv') -> None:
         self.__foundFiles: list = []
         self.__pathTarget = pathTarget
         self.__extensionFile = extension
 
     def findYesterdayFile(self, month, year) -> None:
+        '''
+            Busca o arquivo cujo o mês está na data de ontem.
+            Salva o arquivo no atributo self.__foundFiles
+            Retorna -> None
+        '''
         try:
             fileName = self.__generatorNameFile(month, year)
             self.__foundFiles.append(self.findOneFile(fileName))
@@ -152,12 +162,22 @@ class FileRetriever:
             raise (e.__name__.__class__, e)
 
     def __findFiles(self) -> None:
+        '''
+            Atributo de classe.
+            Busca todos os arquivos cujo a extensão foi definida na pasta.
+            Salva o caminho dos arquivos no atributo self.__foundFiles.
+            Retorna -> None.
+        '''
         for root, _, file_ in os.walk(self.__pathTarget):
             for targetFile in file_:
                 if self.__extensionFile in targetFile:
                     self.__foundFiles.append(os.path.join(root, targetFile))
 
     def findOneFile(self, fileName: str):
+        '''
+            Busca um arquivo na pasta definida pelo seu nome.
+            Retorna o caminho do arquivo se ele existir.
+        '''
         for root, _, file_ in os.walk(self.__pathTarget):
             for targetFile in file_:
                 if fileName in targetFile:
@@ -165,6 +185,11 @@ class FileRetriever:
         return 'Arquivo não encontrado.'
 
     def __generatorNameFile(self, month, year):
+        '''
+            Atributo de classe.
+            Gera o nome de um arquivo baseado em seu mês e ano.
+            Retorna o nome do arquivo.
+        '''
         try:
             nameFile = os.path.join(
                 f'{month}_{year}_log{self.__extensionFile}'
@@ -174,6 +199,9 @@ class FileRetriever:
             print(e.__class__.__name__, e)
 
     def getFoundFiles(self):
+        '''
+            Retorna o atributo self.__foundFiles.
+        '''
         try:
             if self.__foundFiles:
                 for files in self.__foundFiles:
@@ -185,6 +213,9 @@ class FileRetriever:
 
 
 class DataExtractor:
+    '''
+        Extrai os dados brutos dos arquivos e agrupa-os por dia.
+    '''
     def __init__(self) -> None:
         self.__extractData: list = []
 
