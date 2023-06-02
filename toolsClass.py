@@ -239,16 +239,18 @@ class DataExtractor:
         '''Informe o caminho do arquivo e a data da extração. Retorna os dados
         retirados do arquivo'''
         with open(pathFile, 'r', encoding='utf-8') as file:
-            data = file.readlines()
+            dataFile = [x.replace('\0', '') for x in file.readlines()]
             extractDataTarget: list = []
-            counter = -1
-            while True:
-                datas = data[counter].strip()[:3]
-                if int(datas) == dateTarget:
-                    extractDataTarget.append(data[counter].strip().split(','))
-                    counter -= 1
-                elif int(datas) > dateTarget:
-                    counter -= 1
+            for data in dataFile[-1::-1]:
+                datas = data[:3].strip()
+                if datas == '':
+                    continue
+                if int(datas) > dateTarget:
+                    ...
+                elif int(datas) == dateTarget:
+                    extractDataTarget.append(
+                        data.strip().split(',')
+                    )
                 else:
                     break
         self.__groupbyDataByDate(extractDataTarget)
