@@ -5,13 +5,16 @@ import os
 
 if __name__ == '__main__':
     try:
+        dBTable = 'dado_diario'
         folderFiles = os.path.join(
             'home', 'fernando', 'Estacao'
         )
-        dB = OperationDataBase('dado_diario')
+        dB = OperationDataBase(dBTable)
         dB.setBd(1)
-        dB2 = OperationDataBase('dado_diario')
+        dB2 = OperationDataBase(dBTable)
         dB2.setBd(2)
+        dB3 = OperationDataBase(dBTable)
+        dB3.setBd(3)
         cM = ConverterMonths()
         fR = FileRetriever(f'/{folderFiles}')
         dD = DailyDate()
@@ -19,6 +22,7 @@ if __name__ == '__main__':
         dP = DataProcessor()
         dM = DataModel(dB)
         dM2 = DataModel(dB2)
+        dM3 = DataModel(dB3)
 
         day = dD.extractDay(dD.yesterdayDate())
         year = dD.extractYear(dD.yesterdayDate())
@@ -30,8 +34,10 @@ if __name__ == '__main__':
             dP.processedData(result)
             dM.executeDB(dP.getDataProcessed())
             dM2.executeDB(dP.getDataProcessed())
+            dM3.executeDB(dP.getDataProcessed())
 
         dB.closeConnection()
         dB2.closeConnection()
+        dB3.closeConnection()
     except Exception as e:
         print(e.__class__.__name__, e)
