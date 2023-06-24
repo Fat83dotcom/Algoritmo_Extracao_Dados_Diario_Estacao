@@ -233,7 +233,7 @@ class DataExtractor:
         except (IndexError, Exception) as e:
             raise e
 
-    def extractedDailyData(self, pathFile: str, dateTarget: int) -> list:
+    def extractedDailyData(self, pathFile: str, dateTarget: int):
         '''Informe o caminho do arquivo e a data da extração. Retorna os dados
         retirados do arquivo'''
         with open(pathFile, 'r', encoding='utf-8') as file:
@@ -344,7 +344,7 @@ class DataProcessor:
         newDate = nD.strftime('%Y/%m/%d %H:%M:%S')
         return newDate
 
-    def processedData(self, listTarget) -> None:
+    def processedData(self, listTarget: list) -> None:
         '''
         Processa a lista com os dados agrupados por data.
         Os dados são salvos no atributo self.__dataProcessed.
@@ -514,7 +514,7 @@ class DataModel:
     def __init__(self, dB: OperationDataBase) -> None:
         self.DBInstance = dB
 
-    def executeDB(self, iterable: dict) -> None:
+    def executeDB(self, iterable: list) -> None:
         '''
             Insere os dados extraidos no modelo do BD.
             Retorna -> None
