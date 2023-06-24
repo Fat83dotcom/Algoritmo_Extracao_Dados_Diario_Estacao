@@ -1,6 +1,6 @@
 import os
 import csv
-import psycopg2
+import psycopg
 from abc import ABC
 from pathlib import Path
 from itertools import groupby
@@ -13,7 +13,7 @@ class DataBase(ABC):
     para as operações do banco de dados'''
     def __init__(
             self, dBConfig: dict) -> None:
-        self.con = psycopg2.connect(
+        self.con = psycopg.connect(
             host=dBConfig['host'],
             port=dBConfig['port'],
             dbname=dBConfig['dbname'],
@@ -521,7 +521,7 @@ class DataModel:
         '''
         for dataDays in iterable:
             try:
-                # self.DBInstance.toExecute('SET datestyle to ymd')
+                self.DBInstance.toExecute('SET datestyle to ymd')
                 self.DBInstance.insertCollumn(
                     (dataDays['date'],
                         dataDays['umidity']['mean'],

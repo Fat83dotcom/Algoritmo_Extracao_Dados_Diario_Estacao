@@ -1,6 +1,8 @@
 from toolsClass import OperationDataBase, DataProcessor, FileRetriever
 from toolsClass import DataExtractor, ConverterMonths, DailyDate, DataModel
 from databaseSettings import dbCredentials
+import sys 
+sys.setrecursionlimit(10**6)
 import os
  
 
