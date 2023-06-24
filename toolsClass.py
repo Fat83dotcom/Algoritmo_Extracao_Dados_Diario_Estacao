@@ -4,7 +4,6 @@ import psycopg2
 from abc import ABC
 from pathlib import Path
 from itertools import groupby
-from databaseSettings import dbCredentials
 from datetime import datetime, timedelta
 from statistics import mean, median, mode
 
@@ -13,10 +12,14 @@ class DataBase(ABC):
     '''Classe abstrata que fornece os serviços básicos
     para as operações do banco de dados'''
     def __init__(
-            self, host='', port='', dbname='', user='', password=''
-            ) -> None:
+            self, dBConfig: dict) -> None:
         self.con = psycopg2.connect(
-            host=host, port=port, dbname=dbname, user=user, password=password)
+            host=dBConfig['host'],
+            port=dBConfig['port'],
+            dbname=dBConfig['dbname'],
+            user=dBConfig['user'],
+            password=dBConfig['password']
+        )
         self.cursor = self.con.cursor()
 
     def closeConnection(self):
@@ -65,19 +68,10 @@ class DataBase(ABC):
 class OperationDataBase(DataBase):
     '''Realiza as operações com o PostgreSQL'''
 
-    def __init__(self, table: str) -> None:
+    def __init__(self, table: str, dBConfig: dict) -> None:
         self.__table = table
-        self.Bd: DataBase = DataBase
-
-    def setBd(self, dbChoice: int) -> None:
-        CONFIG = dbCredentials(dbChoice)
-        self.Bd = DataBase(
-            dbname=CONFIG['banco_dados'],
-            user=CONFIG['usuario'],
-            port=CONFIG['porta'],
-            password=CONFIG['senha'],
-            host=CONFIG['host']
-        )
+        super().__init__(
+            dBConfig)
 
     def updateColumn(self, collumn, condiction, update):
         '''
@@ -90,10 +84,10 @@ class OperationDataBase(DataBase):
             update, table_name=self.__table,
             collumn_name=collumn, condiction=condiction)
         try:
-            self.Bd.toExecute(sql)
-            self.Bd.toSend()
+            self.toExecute(sql)
+            self.toSend()
         except Exception as e:
-            self.Bd.toAbort()
+            self.toAbort()
             raise e
 
     def insertCollumn(self, *args, collumn):
@@ -107,10 +101,10 @@ class OperationDataBase(DataBase):
             sql = self.generatorSQLInsert(
                 *args, colunm_names=collumn, table_name=self.__table
             )
-            self.Bd.toExecute(sql)
-            self.Bd.toSend()
+            self.toExecute(sql)
+            self.toSend()
         except Exception as e:
-            self.Bd.toAbort()
+            self.toAbort()
             raise e
 
     def insertCollumnMogrify(self, *args, collumn):
@@ -124,10 +118,10 @@ class OperationDataBase(DataBase):
             sql = self.generatorSQLInsert(
                 *args, colunm_names=collumn, table_name=self.__table
             )
-            self.Bd.toExecuteMogrify(sql)
-            self.Bd.toSend()
+            self.toExecuteMogrify(sql)
+            self.toSend()
         except Exception as e:
-            self.Bd.toAbort()
+            self.toAbort()
             raise e
 
     def closeConnection(self):
@@ -135,13 +129,13 @@ class OperationDataBase(DataBase):
             Fecha a conexão com o banco.
             Deve ser usado ao final das transações.
         '''
-        return self.Bd.closeConnection()
+        return self.closeConnection()
 
     def toExecute(self, sql):
         '''
             Executa um comando SQL avulso.
         '''
-        return self.Bd.toExecute(sql)
+        return self.toExecute(sql)
 
 
 class FileRetriever:
@@ -347,7 +341,6 @@ class DataProcessor:
                     else:
                         dTStr = f'{nD[5:]}/{nD[3]}/{nD[:2]} 00:00:00'.strip()
                         nD = datetime.strptime(dTStr, '%Y/%m/%d %H:%M:%S')
-
         newDate = nD.strftime('%Y/%m/%d %H:%M:%S')
         return newDate
 
