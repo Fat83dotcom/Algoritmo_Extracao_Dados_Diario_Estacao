@@ -521,7 +521,7 @@ class DataModel:
         '''
         for dataDays in iterable:
             try:
-                self.DBInstance.toExecute('SET datestyle to ymd')
+                # self.DBInstance.toExecute('SET datestyle to ymd')
                 self.DBInstance.insertCollumn(
                     (dataDays['date'],
                         dataDays['umidity']['mean'],
@@ -566,6 +566,7 @@ class DataModel:
                         moda_temp_ext\
                     )')
             except Exception as e:
+                print(e)
                 print(e.__class__.__name__, e)
                 continue
 

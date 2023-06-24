@@ -2,7 +2,7 @@ from toolsClass import OperationDataBase, DataProcessor, FileRetriever
 from toolsClass import DataExtractor, ConverterMonths, DailyDate, DataModel
 from databaseSettings import dbCredentials
 import os
-
+ 
 
 if __name__ == '__main__':
     try:
@@ -27,7 +27,7 @@ if __name__ == '__main__':
         month = cM.getMonths(str(dD.extractMonth(dD.yesterdayDate())))
         fR.findYesterdayFile(month, year)
         for file in fR.getFoundFiles():
-            data: list = dE.extractedDailyData(file, int(day))
+            dE.extractedDailyData(file, int(day))
             result = dE.getExtractData()
             dP.processedData(result)
             dM.executeDB(dP.getDataProcessed())
