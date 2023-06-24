@@ -47,41 +47,85 @@ class LogFiles:
         }
         self.recordFile(register)
 
-    def seekData(self):
-        return self.cursor.fetchall()
 
-    def seekOneData(self):
-        return self.cursor.fetchone()
+class DataBase(ABC, LogFiles):
+    '''Classe abstrata que fornece os serviços básicos
+    para as operações do banco de dados'''
+    def __init__(self, dBConfig: dict) -> None:
+        self.host = dBConfig['host']
+        self.port = dBConfig['port']
+        self.dbname = dBConfig['dbname']
+        self.user = dBConfig['user']
+        self.password = dBConfig['password']
 
-    def seekInterval(self, intervalo):
-        return self.cursor.fetchmany(intervalo)
+    def toExecute(self, sql):
+        try:
+            with psycopg.connect(
+                host=self.host,
+                dbname=self.dbname,
+                user=self.user,
+                port=self.port,
+                password=self.password
+            ) as con:
+                with con.cursor() as cursor:
+                    sql, data = sql
+                    cursor.execute(sql, data)
+        except Exception as e:
+            className = self.__class__.__name__
+            methName = self.toExecute.__name__
+            self.registerErros(className, methName, e)
 
-    def generatorSQLInsert(self, *args, colunm_names=None,  table_name=None):
-        values = args[0]
-        if len(values) == 1:
-            values = str(values).replace(',', '')
-        sql = "INSERT INTO %s %s VALUES %s" % (
-            table_name, colunm_names, values
-        )
-        return sql
+    def placeHolderSQLGenerator(self, values) -> str | None:
+        try:
+            placeHolders: str = ''
+            sizeValues = len(values)
+            for n, _ in enumerate(values):
+                if sizeValues == 1 or n == (sizeValues - 1):
+                    placeHolders += '%s'
+                else:
+                    placeHolders += '%s, '
+            return placeHolders
+        except Exception as e:
+            className = self.__class__.__name__
+            methName = self.placeHolderSQLGenerator.__name__
+            self.registerErros(className, methName, e)
 
-    def generatorSQLUpdate(
+    def SQLInsertGenerator(self, *args, colunm_names=None,  table_name=None):
+        try:
+            values = args[0]
+            pHolders = self.placeHolderSQLGenerator(values)
+            sql = (
+                f"INSERT INTO {table_name} ({colunm_names}) VALUES ({pHolders})",
+                values
+            )
+            return sql
+        except Exception as e:
+            className = self.__class__.__name__
+            methName = self.SQLInsertGenerator.__name__
+            self.registerErros(className, methName, e)
+
+    def SQLUpdateGenerator(
             self, *args, collumn_name=None, table_name=None, condiction=None
             ):
-        valores = args[0]
-        sql = "UPDATE %s SET %s='%s' WHERE %s" % (
-            table_name, collumn_name, valores, condiction
-        )
-        return sql
+        try:
+            values = args
+            pHolders = self.placeHolderSQLGenerator(values)
+            sql = (
+                f"UPDATE {table_name} SET {collumn_name}=({pHolders}) WHERE {condiction}",
+                values
+            )
+            return sql
+        except Exception as e:
+            className = self.__class__.__name__
+            methName = self.SQLUpdateGenerator.__name__
+            self.registerErros(className, methName, e)
 
 
-class OperationDataBase(DataBase):
+class OperationDataBase(DataBase, LogFiles):
     '''Realiza as operações com o PostgreSQL'''
-
     def __init__(self, table: str, dBConfig: dict) -> None:
         self.__table = table
-        super().__init__(
-            dBConfig)
+        super().__init__(dBConfig)
 
     def updateColumn(self, collumn, condiction, update):
         '''
@@ -90,15 +134,15 @@ class OperationDataBase(DataBase):
             condition -> Condição de atualização
             update -> Valor da modificação
         '''
-        sql = self.generatorSQLUpdate(
-            update, table_name=self.__table,
-            collumn_name=collumn, condiction=condiction)
         try:
+            sql = self.SQLUpdateGenerator(
+                update, table_name=self.__table,
+                collumn_name=collumn, condiction=condiction)
             self.toExecute(sql)
-            self.toSend()
         except Exception as e:
-            self.toAbort()
-            raise e
+            className = self.__class__.__name__
+            methName = self.updateColumn.__name__
+            self.registerErros(className, methName, e)
 
     def insertCollumn(self, *args, collumn):
         '''
@@ -108,44 +152,14 @@ class OperationDataBase(DataBase):
             collumn -> Nome das colunas, na ordem de inserção.
         '''
         try:
-            sql = self.generatorSQLInsert(
+            sql = self.SQLInsertGenerator(
                 *args, colunm_names=collumn, table_name=self.__table
             )
             self.toExecute(sql)
-            self.toSend()
         except Exception as e:
-            self.toAbort()
-            raise e
-
-    def insertCollumnMogrify(self, *args, collumn):
-        '''
-            Insere dados na tabela usando o comando pysicopg2 mogrify().
-            Parametros:
-            *args -> tupla com os valores, em ordem com a coluna
-            collumn -> Nome das colunas, na ordem de inserção.
-        '''
-        try:
-            sql = self.generatorSQLInsert(
-                *args, colunm_names=collumn, table_name=self.__table
-            )
-            self.toExecuteMogrify(sql)
-            self.toSend()
-        except Exception as e:
-            self.toAbort()
-            raise e
-
-    def closeConnection(self):
-        '''
-            Fecha a conexão com o banco.
-            Deve ser usado ao final das transações.
-        '''
-        return self.closeConnection()
-
-    def toExecute(self, sql):
-        '''
-            Executa um comando SQL avulso.
-        '''
-        return self.toExecute(sql)
+            className = self.__class__.__name__
+            methName = self.insertCollumn.__name__
+            self.registerErros(className, methName, e)
 
 
 class FileRetriever:
