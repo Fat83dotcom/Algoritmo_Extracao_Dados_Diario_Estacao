@@ -8,34 +8,41 @@ from datetime import datetime, timedelta
 from statistics import mean, median, mode
 
 
-class DataBase(ABC):
-    '''Classe abstrata que fornece os serviços básicos
-    para as operações do banco de dados'''
-    def __init__(
-            self, dBConfig: dict) -> None:
-        self.con = psycopg.connect(
-            host=dBConfig['host'],
-            port=dBConfig['port'],
-            dbname=dBConfig['dbname'],
-            user=dBConfig['user'],
-            password=dBConfig['password']
-        )
-        self.cursor = self.con.cursor()
+class LogFiles:
+    def registerTimeElapsed(self, timeInit: float, timeEnd: float):
+        totalTime = timeEnd - timeInit
+        self.recordFile({'time elapsed: ': totalTime, 'Seconds': ''})
 
-    def closeConnection(self):
-        self.con.close()
+    def snapshotTime(self):
+        return time.time()
 
-    def toExecute(self, sql):
-        self.cursor.execute(sql)
+    def recordFile(self, *args):
+        path: str = os.path.join(os.getcwd(), 'logFile.txt')
+        with open(path, "a", encoding='utf-8') as file:
+            file.write(f'{args[0]}\n')
 
-    def toExecuteMogrify(self, sql):
-        self.cursor.mogrify(sql)
+    def registerTimeLogStart(self):
+        register = {
+            'dialog': '*** Inicio do processo ***',
+            'startTime': datetime.now().strftime('%d/%m/%Y %H:%M:%S'),
+        }
+        self.recordFile(register)
 
-    def toSend(self):
-        self.con.commit()
+    def registerTimeLogEnd(self):
+        register = {
+            'dialog': '*** Final do processo ***',
+            'endTime': datetime.now().strftime('%d/%m/%Y %H:%M:%S'),
+        }
+        self.recordFile(register)
 
-    def toAbort(self):
-        self.con.rollback()
+    def registerErros(self, className, methName, error):
+        register = {
+            'className': className,
+            'methName': methName,
+            'error': error,
+            'hour': datetime.now().strftime('%d/%m/%Y %H:%M:%S')
+        }
+        self.recordFile(register)
 
     def seekData(self):
         return self.cursor.fetchall()
