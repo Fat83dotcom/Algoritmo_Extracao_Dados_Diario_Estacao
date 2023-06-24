@@ -1,5 +1,6 @@
 from toolsClass import OperationDataBase, DataProcessor, FileRetriever
 from toolsClass import DataExtractor, ConverterMonths, DailyDate, DataModel
+from databaseSettings import dbCredentials
 import os
 
 
@@ -8,10 +9,8 @@ if __name__ == '__main__':
         folderFiles = os.path.join(
             'home', 'fernando', 'Estacao'
         )
-        dB = OperationDataBase('dado_diario')
-        dB.setBd(1)
-        dB2 = OperationDataBase('dado_diario')
-        dB2.setBd(2)
+        dB = OperationDataBase('dado_diario', dbCredentials(1))
+        dB2 = OperationDataBase('dado_diario', dbCredentials(2))
         cM = ConverterMonths()
         fR = FileRetriever(f'/{folderFiles}')
         dD = DailyDate()
