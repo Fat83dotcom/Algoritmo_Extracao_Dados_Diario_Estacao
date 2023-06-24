@@ -1,7 +1,6 @@
 from toolsClass import OperationDataBase, DataProcessor, FileRetriever
 from toolsClass import DataExtractor, ConverterMonths, DailyDate, DataModel
 from databaseSettings import dbCredentials
-from databaseSettings import dbCredentials
 import os
 
 
@@ -13,8 +12,7 @@ if __name__ == '__main__':
         )
         dB = OperationDataBase(dBTable, dbCredentials(1))
         dB2 = OperationDataBase(dBTable, dbCredentials(2))
-        dB3 = OperationDataBase(dBTable)
-        dB3.setBd(3)
+        dB3 = OperationDataBase(dBTable, dbCredentials(3))
         cM = ConverterMonths()
         fR = FileRetriever(f'/{folderFiles}')
         dD = DailyDate()
