@@ -1,13 +1,15 @@
 from toolsClass import OperationDataBase, DataProcessor, FileRetriever
 from toolsClass import DataExtractor, ConverterMonths, DailyDate, DataModel
+from toolsClass import LogFiles
 from databaseSettings import dbCredentials
-import sys 
-sys.setrecursionlimit(10**6)
 import os
- 
+
 
 if __name__ == '__main__':
+    log = LogFiles()
+    init = log.snapshotTime()
     try:
+        log.registerTimeLogStart()
         dBTable = 'dado_diario'
         folderFiles = os.path.join(
             'home', 'fernando', 'Estacao'
@@ -35,9 +37,9 @@ if __name__ == '__main__':
             dM.executeDB(dP.getDataProcessed())
             dM2.executeDB(dP.getDataProcessed())
             dM3.executeDB(dP.getDataProcessed())
-
-        dB.closeConnection()
-        dB2.closeConnection()
-        dB3.closeConnection()
     except Exception as e:
-        print(e.__class__.__name__, e)
+        print(e)
+    finally:
+        log.registerTimeLogEnd()
+        end = log.snapshotTime()
+        log.registerTimeElapsed(init, end)
