@@ -1,6 +1,7 @@
 from toolsClass import OperationDataBase, DataProcessor, FileRetriever
 from toolsClass import DataExtractor, ConverterMonths, DailyDate, DataModel
 from databaseSettings import dbCredentials
+from databaseSettings import dbCredentials
 import os
 
 
