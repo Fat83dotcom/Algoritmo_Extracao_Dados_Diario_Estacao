@@ -1,11 +1,14 @@
 import os
 import csv
 import psycopg
+import time
 from abc import ABC
 from pathlib import Path
 from itertools import groupby
 from datetime import datetime, timedelta
 from statistics import mean, median, mode
+from databaseSettings import dbCredentials
+from collumnTables import dado_diario
 
 
 class LogFiles:
