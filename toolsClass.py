@@ -162,7 +162,7 @@ class OperationDataBase(DataBase, LogFiles):
             self.registerErros(className, methName, e)
 
 
-class FileRetriever:
+class FileRetriever(LogFiles):
     '''
         Busca arquivos, manipula caminhos e nomes de arquivos.
     '''
@@ -179,9 +179,13 @@ class FileRetriever:
         '''
         try:
             fileName = self.__generatorNameFile(month, year)
-            self.__foundFiles.append(self.findOneFile(fileName))
+            self.__foundFiles.append(
+                self.findOneFile(fileName)
+            )
         except Exception as e:
-            raise (e.__name__.__class__, e)
+            className = self.__class__.__name__
+            methName = self.findYesterdayFile.__name__
+            self.registerErros(className, methName, e)
 
     def __findFiles(self) -> None:
         '''
@@ -190,23 +194,35 @@ class FileRetriever:
             Salva o caminho dos arquivos no atributo self.__foundFiles.
             Retorna -> None.
         '''
-        for root, _, file_ in os.walk(self.__pathTarget):
-            for targetFile in file_:
-                if self.__extensionFile in targetFile:
-                    self.__foundFiles.append(os.path.join(root, targetFile))
+        try:
+            for root, _, file_ in os.walk(self.__pathTarget):
+                for targetFile in file_:
+                    if self.__extensionFile in targetFile:
+                        self.__foundFiles.append(
+                            os.path.join(root, targetFile)
+                        )
+        except Exception as e:
+            className = self.__class__.__name__
+            methName = self.__findFiles.__name__
+            self.registerErros(className, methName, e)
 
     def findOneFile(self, fileName: str):
         '''
             Busca um arquivo na pasta definida pelo seu nome.
             Retorna o caminho do arquivo se ele existir.
         '''
-        for root, _, file_ in os.walk(self.__pathTarget):
-            for targetFile in file_:
-                if fileName in targetFile:
-                    return str(os.path.join(root, targetFile))
-        return 'Arquivo não encontrado.'
+        try:
+            for root, _, file_ in os.walk(self.__pathTarget):
+                for targetFile in file_:
+                    if fileName in targetFile:
+                        return str(os.path.join(root, targetFile))
+            return 'Arquivo não encontrado.'
+        except Exception as e:
+            className = self.__class__.__name__
+            methName = self.findOneFile.__name__
+            self.registerErros(className, methName, e)
 
-    def __generatorNameFile(self, month, year):
+    def __generatorNameFile(self, month, year) -> str | None:
         '''
             Atributo de classe.
             Gera o nome de um arquivo baseado em seu mês e ano.
@@ -218,7 +234,9 @@ class FileRetriever:
             )
             return nameFile
         except Exception as e:
-            print(e.__class__.__name__, e)
+            className = self.__class__.__name__
+            methName = self.__generatorNameFile.__name__
+            self.registerErros(className, methName, e)
 
     def getFoundFiles(self):
         '''
@@ -231,10 +249,12 @@ class FileRetriever:
             else:
                 raise Exception('Arquivos não encontrdos')
         except Exception as e:
-            print(e)
+            className = self.__class__.__name__
+            methName = self.getFoundFiles.__name__
+            self.registerErros(className, methName, e)
 
 
-class DataExtractor:
+class DataExtractor(LogFiles):
     '''
         Extrai os dados brutos dos arquivos e agrupa-os por dia.
     '''
@@ -254,28 +274,35 @@ class DataExtractor:
             with open(PATH_CSV, 'r', encoding='utf-8') as myCsv:
                 reader = csv.reader((line.replace('\0', '') for line in myCsv))
                 self.__groupbyDataByDate(reader)
-        except (IndexError, Exception) as e:
-            raise e
+        except Exception as e:
+            className = self.__class__.__name__
+            methName = self.dataExtract.__name__
+            self.registerErros(className, methName, e)
 
     def extractedDailyData(self, pathFile: str, dateTarget: int):
         '''Informe o caminho do arquivo e a data da extração. Retorna os dados
         retirados do arquivo'''
-        with open(pathFile, 'r', encoding='utf-8') as file:
-            dataFile = [x.replace('\0', '') for x in file.readlines()]
-            extractDataTarget: list = []
-            for data in dataFile[-1::-1]:
-                datas = data[:3].strip()
-                if datas == '':
-                    continue
-                if int(datas) > dateTarget:
-                    ...
-                elif int(datas) == dateTarget:
-                    extractDataTarget.append(
-                        data.strip().split(',')
-                    )
-                else:
-                    break
-        self.__groupbyDataByDate(extractDataTarget)
+        try:
+            with open(pathFile, 'r', encoding='utf-8') as file:
+                dataFile = [x.replace('\0', '') for x in file.readlines()]
+                extractDataTarget: list = []
+                for data in dataFile[-1::-1]:
+                    datas = data[:3].strip()
+                    if datas == '':
+                        continue
+                    if int(datas) > dateTarget:
+                        ...
+                    elif int(datas) == dateTarget:
+                        extractDataTarget.append(
+                            data.strip().split(',')
+                        )
+                    else:
+                        break
+            self.__groupbyDataByDate(extractDataTarget)
+        except Exception as e:
+            className = self.__class__.__name__
+            methName = self.extractedDailyData.__name__
+            self.registerErros(className, methName, e)
 
     def __groupbyDataByDate(self, iterable):
         '''
@@ -283,22 +310,31 @@ class DataExtractor:
             Salva os dados no atributo self.__stractData
         '''
         def __extractKey(listTarget):
-            return listTarget[0][:11]
-
-        groups = groupby(iterable, key=__extractKey)
-        for date, data in groups:
-            self.__extractData.append((date, [
-                        (
-                            float(value[1]),
-                            float(value[2]),
-                            float(value[3]),
-                            float(value[4])
-                        )
-                        if
-                        value[1] and value[2] and value[3] and value[4] != ''
-                        else (0, 0, 0, 0)
-                        for value in data
-                    ]))
+            try:
+                return listTarget[0][:11]
+            except Exception as e:
+                className = self.__class__.__name__
+                methName = __extractKey.__name__
+                self.registerErros(className, methName, e)
+        try:
+            groups = groupby(iterable, key=__extractKey)
+            for date, data in groups:
+                self.__extractData.append((date, [
+                    (
+                        float(value[1]),
+                        float(value[2]),
+                        float(value[3]),
+                        float(value[4])
+                    )
+                    if
+                    value[1] and value[2] and value[3] and value[4] != ''
+                    else (0, 0, 0, 0)
+                    for value in data
+                ]))
+        except Exception as e:
+            className = self.__class__.__name__
+            methName = self.__groupbyDataByDate.__name__
+            self.registerErros(className, methName, e)
 
     def getExtractData(self) -> list:
         '''
@@ -307,7 +343,7 @@ class DataExtractor:
         return self.__extractData
 
 
-class DataProcessor:
+class DataProcessor(LogFiles):
     '''Processa os dados e prapara-os para entrar no banco de dados.'''
     def __init__(self) -> None:
         self.__dataProcessed: list = []
@@ -340,116 +376,128 @@ class DataProcessor:
             'dec': 12
         }
 
-    def __dateTransformer(self, dateOld: str) -> str:
+    def __dateTransformer(self, dateOld: str):
         '''
         Metodo de classe que formata datas no formato do Banco de Dados.
         Retorna uma string com a data formatada.
         '''
-        if dateOld[3:6] in self.__numbersOfMonth:
-            for k, v in self.__numbersOfMonth.items():
-                if k == dateOld[3:6]:
-                    nD = dateOld.replace(k, str(v))
-                    if int(nD[3:5].strip()) > 9:
-                        dTStr = f'{nD[5:]}/{nD[3:5]}/{nD[:2]} 00:00:00'.strip()
-                        nD = datetime.strptime(dTStr, '%Y/%m/%d %H:%M:%S')
-                    else:
-                        dTStr = f'{nD[5:]}/{nD[3]}/{nD[:2]} 00:00:00'.strip()
-                        nD = datetime.strptime(dTStr, '%Y/%m/%d %H:%M:%S')
-        else:
-            for k, v in self.__numbersOfMonthEnglish.items():
-                if k == dateOld[3:6]:
-                    nD = dateOld.replace(k, str(v))
-                    if int(nD[3:5].strip()) > 9:
-                        dTStr = f'{nD[5:]}/{nD[3:5]}/{nD[:2]} 00:00:00'.strip()
-                        nD = datetime.strptime(dTStr, '%Y/%m/%d %H:%M:%S')
-                    else:
-                        dTStr = f'{nD[5:]}/{nD[3]}/{nD[:2]} 00:00:00'.strip()
-                        nD = datetime.strptime(dTStr, '%Y/%m/%d %H:%M:%S')
-        newDate = nD.strftime('%Y/%m/%d %H:%M:%S')
-        return newDate
+        try:
+            if dateOld[3:6] in self.__numbersOfMonth:
+                for k, v in self.__numbersOfMonth.items():
+                    if k == dateOld[3:6]:
+                        nD = dateOld.replace(k, str(v))
+                        if int(nD[3:5].strip()) > 9:
+                            dTStr = f'{nD[5:]}/{nD[3:5]}/{nD[:2]} 00:00:00'.strip()
+                            nD = datetime.strptime(dTStr, '%Y/%m/%d %H:%M:%S')
+                        else:
+                            dTStr = f'{nD[5:]}/{nD[3]}/{nD[:2]} 00:00:00'.strip()
+                            nD = datetime.strptime(dTStr, '%Y/%m/%d %H:%M:%S')
+            else:
+                for k, v in self.__numbersOfMonthEnglish.items():
+                    if k == dateOld[3:6]:
+                        nD = dateOld.replace(k, str(v))
+                        if int(nD[3:5].strip()) > 9:
+                            dTStr = f'{nD[5:]}/{nD[3:5]}/{nD[:2]} 00:00:00'.strip()
+                            nD = datetime.strptime(dTStr, '%Y/%m/%d %H:%M:%S')
+                        else:
+                            dTStr = f'{nD[5:]}/{nD[3]}/{nD[:2]} 00:00:00'.strip()
+                            nD = datetime.strptime(dTStr, '%Y/%m/%d %H:%M:%S')
+            newDate = nD.strftime('%Y/%m/%d %H:%M:%S')
+            return newDate
+        except Exception as e:
+            className = self.__class__.__name__
+            methName = self.__dateTransformer.__name__
+            self.registerErros(className, methName, e)
 
     def processedData(self, listTarget: list) -> None:
         '''
         Processa a lista com os dados agrupados por data.
         Os dados são salvos no atributo self.__dataProcessed.
         '''
-        for groupData in listTarget:
-            currentData: dict = {
-                'date': '',
-                'umidity': {
-                    'minimum': float,
-                    'maximum': float,
-                    'mean': float,
-                    'median': float,
-                    'mode': float
-                },
-                'press': {
-                    'minimum': float,
-                    'maximum': float,
-                    'mean': float,
-                    'median': float,
-                    'mode': float
-                },
-                'tempIndoor': {
-                    'minimum': float,
-                    'maximum': float,
-                    'mean': float,
-                    'median': float,
-                    'mode': float
-                },
-                'tempOutdoor': {
-                    'minimum': float,
-                    'maximum': float,
-                    'mean': float,
-                    'median': float,
-                    'mode': float
+        try:
+            for groupData in listTarget:
+                currentData: dict = {
+                    'date': '',
+                    'umidity': {
+                        'minimum': float,
+                        'maximum': float,
+                        'mean': float,
+                        'median': float,
+                        'mode': float
+                    },
+                    'press': {
+                        'minimum': float,
+                        'maximum': float,
+                        'mean': float,
+                        'median': float,
+                        'mode': float
+                    },
+                    'tempIndoor': {
+                        'minimum': float,
+                        'maximum': float,
+                        'mean': float,
+                        'median': float,
+                        'mode': float
+                    },
+                    'tempOutdoor': {
+                        'minimum': float,
+                        'maximum': float,
+                        'mean': float,
+                        'median': float,
+                        'mode': float
+                    }
                 }
-            }
-            humidity: list = []
-            press: list = []
-            tempIndoor: list = []
-            tempOutdoor: list = []
+                humidity: list = []
+                press: list = []
+                tempIndoor: list = []
+                tempOutdoor: list = []
 
-            for data in groupData[1]:
-                if 0 < data[0] <= 100:
-                    humidity.append(data[0])
-                if 0 < data[1] <= 1000:
-                    press.append(data[1])
-                if 0 < data[2] < 50:
-                    tempIndoor.append(data[2])
-                if 0 < data[3] < 50:
-                    tempOutdoor.append(data[3])
+                for data in groupData[1]:
+                    if 0 < data[0] <= 100:
+                        humidity.append(data[0])
+                    if 0 < data[1] <= 1000:
+                        press.append(data[1])
+                    if 0 < data[2] < 50:
+                        tempIndoor.append(data[2])
+                    if 0 < data[3] < 50:
+                        tempOutdoor.append(data[3])
 
-            currentData.update({'date': self.__dateTransformer(groupData[0])})
-            currentData.update({'umidity': {
-                    'minimum': round(min(humidity), 2),
-                    'maximum': round(max(humidity), 2),
-                    'mean': round(mean(humidity), 2),
-                    'median': round(median(humidity), 2),
-                    'mode': round(mode(humidity), 2)
-                }})
-            currentData.update({'press': {
-                    'minimum': round(min(press), 2),
-                    'maximum': round(max(press), 2),
-                    'mean': round(mean(press), 2),
-                    'median': round(median(press), 2),
-                    'mode': round(mode(press), 2)
-                }})
-            currentData.update({'tempIndoor': {
-                    'minimum': round(min(tempIndoor), 2),
-                    'maximum': round(max(tempIndoor), 2),
-                    'mean': round(mean(tempIndoor), 2),
-                    'median': round(median(tempIndoor), 2),
-                    'mode': round(mode(tempIndoor), 2)
-                }})
-            currentData.update({'tempOutdoor': {
-                    'minimum': round(min(tempOutdoor), 2),
-                    'maximum': round(max(tempOutdoor), 2),
-                    'mean': round(mean(tempOutdoor), 2),
-                    'median': round(median(tempOutdoor), 2),
-                    'mode': round(mode(tempOutdoor), 2)
-                }})
-            self.__dataProcessed.append(currentData)
+                currentData.update(
+                    {'date': self.__dateTransformer(groupData[0])}
+                )
+                currentData.update({'umidity': {
+                        'minimum': round(min(humidity), 2),
+                        'maximum': round(max(humidity), 2),
+                        'mean': round(mean(humidity), 2),
+                        'median': round(median(humidity), 2),
+                        'mode': round(mode(humidity), 2)
+                    }})
+                currentData.update({'press': {
+                        'minimum': round(min(press), 2),
+                        'maximum': round(max(press), 2),
+                        'mean': round(mean(press), 2),
+                        'median': round(median(press), 2),
+                        'mode': round(mode(press), 2)
+                    }})
+                currentData.update({'tempIndoor': {
+                        'minimum': round(min(tempIndoor), 2),
+                        'maximum': round(max(tempIndoor), 2),
+                        'mean': round(mean(tempIndoor), 2),
+                        'median': round(median(tempIndoor), 2),
+                        'mode': round(mode(tempIndoor), 2)
+                    }})
+                currentData.update({'tempOutdoor': {
+                        'minimum': round(min(tempOutdoor), 2),
+                        'maximum': round(max(tempOutdoor), 2),
+                        'mean': round(mean(tempOutdoor), 2),
+                        'median': round(median(tempOutdoor), 2),
+                        'mode': round(mode(tempOutdoor), 2)
+                    }})
+                self.__dataProcessed.append(currentData)
+        except Exception as e:
+            className = self.__class__.__name__
+            methName = self.processedData.__name__
+            self.registerErros(className, methName, e)
 
     def getDataProcessed(self) -> list:
         '''
@@ -458,7 +506,7 @@ class DataProcessor:
         return self.__dataProcessed
 
 
-class ConverterMonths:
+class ConverterMonths(LogFiles):
     '''
         Converte os números dos meses em suas abreviações.
     '''
@@ -492,7 +540,7 @@ class ConverterMonths:
             '12': 'dec'
         }
 
-    def getMonths(self, numberOfMont: str) -> str:
+    def getMonths(self, numberOfMont: str):
         '''
             Informe uma string contendo o número correspondente ao mês.
             Retorna a abreviação do mês.
@@ -501,7 +549,7 @@ class ConverterMonths:
             return self.__numbersOfMonth[numberOfMont]
 
 
-class DailyDate:
+class DailyDate(LogFiles):
     '''Manipula datas.'''
     def __init__(self) -> None:
         self.__todayDate: datetime = datetime.now()
@@ -533,7 +581,7 @@ class DailyDate:
         return extratcYear
 
 
-class DataModel:
+class DataModel(OperationDataBase, LogFiles):
     '''Modelo dos dados do banco'''
     def __init__(self, dB: OperationDataBase) -> None:
         self.DBInstance = dB
@@ -545,7 +593,7 @@ class DataModel:
         '''
         for dataDays in iterable:
             try:
-                self.DBInstance.toExecute('SET datestyle to ymd')
+                # self.DBInstance.toExecute('SET datestyle to ymd', ())
                 self.DBInstance.insertCollumn(
                     (dataDays['date'],
                         dataDays['umidity']['mean'],
@@ -567,34 +615,19 @@ class DataModel:
                         dataDays['tempOutdoor']['minimum'],
                         dataDays['tempOutdoor']['maximum'],
                         dataDays['tempOutdoor']['median'],
-                        dataDays['tempOutdoor']['mode']), collumn='(dia, \
-                        media_umidade, \
-                        minimo_umidade, \
-                        maximo_umidade, \
-                        mediana_umidade, \
-                        moda_umidade, \
-                        media_pressao, \
-                        minimo_pressao, \
-                        maximo_pressao, \
-                        mediana_pressao, \
-                        moda_pressao, \
-                        media_temp_int, \
-                        minimo_temp_int, \
-                        maximo_temp_int, \
-                        mediana_temp_int, \
-                        moda_temp_int, \
-                        media_temp_ext, \
-                        minimo_temp_ext, \
-                        maximo_temp_ext, \
-                        mediana_temp_ext, \
-                        moda_temp_ext\
-                    )')
+                        dataDays['tempOutdoor']['mode']),
+                    collumn=dado_diario
+                )
             except Exception as e:
-                print(e)
-                print(e.__class__.__name__, e)
-                continue
+                className = self.__class__.__name__
+                methName = self.executeDB.__name__
+                self.registerErros(className, methName, e)
 
 
 if __name__ == '__main__':
-    m = ConverterMonths()
-    print(m.getMonths('05'))
+    # m = ConverterMonths()
+    # print(m.getMonths('05'))
+
+    bd = OperationDataBase('teste', dbCredentials(4))
+    bd.insertCollumn(('J.Pereira',), collumn='nome')
+    # bd.updateColumn(update='Juvenal', collumn='nome', condiction="codigo in (2, 4)")
