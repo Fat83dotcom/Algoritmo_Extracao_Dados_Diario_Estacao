@@ -1,10 +1,10 @@
 import psycopg
 from abc import ABC
-from DataBaseManager.LogFiles import LogFiles
+from DataBaseManager.LogFiles import LogErrorsMixin
 from DataBaseManager.collumnTables import dado_diario
 
 
-class DataBase(ABC, LogFiles):
+class DataBase(ABC, LogErrorsMixin):
     '''Classe abstrata que fornece os serviços básicos
     para as operações do banco de dados'''
     def __init__(self, dBConfig: dict) -> None:
@@ -29,7 +29,7 @@ class DataBase(ABC, LogFiles):
         except Exception as e:
             className = self.__class__.__name__
             methName = self.toExecute.__name__
-            self.registerErros(className, methName, e)
+            self.registerErrors(className, methName, e)
 
     def placeHolderSQLGenerator(self, values) -> str | None:
         try:
@@ -44,7 +44,7 @@ class DataBase(ABC, LogFiles):
         except Exception as e:
             className = self.__class__.__name__
             methName = self.placeHolderSQLGenerator.__name__
-            self.registerErros(className, methName, e)
+            self.registerErrors(className, methName, e)
 
     def SQLInsertGenerator(self, *args, colunm_names=None,  table_name=None):
         try:
@@ -58,7 +58,7 @@ class DataBase(ABC, LogFiles):
         except Exception as e:
             className = self.__class__.__name__
             methName = self.SQLInsertGenerator.__name__
-            self.registerErros(className, methName, e)
+            self.registerErrors(className, methName, e)
 
     def SQLUpdateGenerator(
             self, *args, collumn_name=None, table_name=None, condiction=None
@@ -74,10 +74,10 @@ class DataBase(ABC, LogFiles):
         except Exception as e:
             className = self.__class__.__name__
             methName = self.SQLUpdateGenerator.__name__
-            self.registerErros(className, methName, e)
+            self.registerErrors(className, methName, e)
 
 
-class OperationDataBase(DataBase, LogFiles):
+class OperationDataBase(DataBase, LogErrorsMixin):
     '''Realiza as operações com o PostgreSQL'''
     def __init__(self, table: str, dBConfig: dict) -> None:
         self.__table = table
@@ -98,9 +98,9 @@ class OperationDataBase(DataBase, LogFiles):
         except Exception as e:
             className = self.__class__.__name__
             methName = self.updateColumn.__name__
-            self.registerErros(className, methName, e)
+            self.registerErrors(className, methName, e)
 
-    def insertCollumn(self, *args, collumn):
+    def insertCollumn(self, *args, collumn: str):
         '''
             Insere dados na tabela.
             Parametros:
@@ -115,22 +115,24 @@ class OperationDataBase(DataBase, LogFiles):
         except Exception as e:
             className = self.__class__.__name__
             methName = self.insertCollumn.__name__
-            self.registerErros(className, methName, e)
+            self.registerErrors(className, methName, e)
 
 
-class DataModel(LogFiles):
-    '''Modelo dos dados do banco'''
+class DataModel(LogErrorsMixin):
+    '''
+        Implementa uma interface para receber os dados e realiza as transações para
+        cada tabela do banco.
+    '''
     def __init__(self, dB: OperationDataBase) -> None:
         self.DBInstance = dB
 
-    def executeDB(self, iterable: list) -> None:
+    def executeInsertDadoDiarioTable(self, iterable: list) -> None:
         '''
             Insere os dados extraidos no modelo do BD.
             Retorna -> None
         '''
         for dataDays in iterable:
             try:
-                # self.DBInstance.toExecute('SET datestyle to ymd', ())
                 self.DBInstance.insertCollumn(
                     (dataDays['date'],
                         dataDays['umidity']['mean'],
@@ -157,5 +159,5 @@ class DataModel(LogFiles):
                 )
             except Exception as e:
                 className = self.__class__.__name__
-                methName = self.executeDB.__name__
-                self.registerErros(className, methName, e)
+                methName = self.executeInsertDadoDiarioTable.__name__
+                self.registerErrors(className, methName, e)

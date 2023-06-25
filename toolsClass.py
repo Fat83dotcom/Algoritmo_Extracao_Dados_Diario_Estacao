@@ -4,12 +4,12 @@ from pathlib import Path
 from itertools import groupby
 from datetime import datetime, timedelta
 from statistics import mean, median, mode
-from DataBaseManager.collumnTables import dado_diario
-from DataBaseManager.OperationalDataBase import LogFiles, OperationDataBase
+from DataBaseManager.OperationalDataBase import OperationDataBase
+from DataBaseManager.LogFiles import LogErrorsMixin
 from DataBaseManager.databaseSettings import dbCredentials
 
 
-class FileRetriever(LogFiles):
+class FileRetriever(LogErrorsMixin):
     '''
         Busca arquivos, manipula caminhos e nomes de arquivos.
     '''
@@ -32,7 +32,7 @@ class FileRetriever(LogFiles):
         except Exception as e:
             className = self.__class__.__name__
             methName = self.findYesterdayFile.__name__
-            self.registerErros(className, methName, e)
+            self.registerErrors(className, methName, e)
 
     def __findFiles(self) -> None:
         '''
@@ -51,9 +51,9 @@ class FileRetriever(LogFiles):
         except Exception as e:
             className = self.__class__.__name__
             methName = self.__findFiles.__name__
-            self.registerErros(className, methName, e)
+            self.registerErrors(className, methName, e)
 
-    def findOneFile(self, fileName: str):
+    def findOneFile(self, fileName: str) -> str | None:
         '''
             Busca um arquivo na pasta definida pelo seu nome.
             Retorna o caminho do arquivo se ele existir.
@@ -67,7 +67,7 @@ class FileRetriever(LogFiles):
         except Exception as e:
             className = self.__class__.__name__
             methName = self.findOneFile.__name__
-            self.registerErros(className, methName, e)
+            self.registerErrors(className, methName, e)
 
     def __generatorNameFile(self, month, year) -> str | None:
         '''
@@ -83,7 +83,7 @@ class FileRetriever(LogFiles):
         except Exception as e:
             className = self.__class__.__name__
             methName = self.__generatorNameFile.__name__
-            self.registerErros(className, methName, e)
+            self.registerErrors(className, methName, e)
 
     def getFoundFiles(self):
         '''
@@ -98,10 +98,10 @@ class FileRetriever(LogFiles):
         except Exception as e:
             className = self.__class__.__name__
             methName = self.getFoundFiles.__name__
-            self.registerErros(className, methName, e)
+            self.registerErrors(className, methName, e)
 
 
-class DataExtractor(LogFiles):
+class DataExtractor(LogErrorsMixin):
     '''
         Extrai os dados brutos dos arquivos e agrupa-os por dia.
     '''
@@ -124,7 +124,7 @@ class DataExtractor(LogFiles):
         except Exception as e:
             className = self.__class__.__name__
             methName = self.dataExtract.__name__
-            self.registerErros(className, methName, e)
+            self.registerErrors(className, methName, e)
 
     def extractedDailyData(self, pathFile: str, dateTarget: int):
         '''Informe o caminho do arquivo e a data da extração. Retorna os dados
@@ -149,7 +149,7 @@ class DataExtractor(LogFiles):
         except Exception as e:
             className = self.__class__.__name__
             methName = self.extractedDailyData.__name__
-            self.registerErros(className, methName, e)
+            self.registerErrors(className, methName, e)
 
     def __groupbyDataByDate(self, iterable):
         '''
@@ -162,7 +162,7 @@ class DataExtractor(LogFiles):
             except Exception as e:
                 className = self.__class__.__name__
                 methName = __extractKey.__name__
-                self.registerErros(className, methName, e)
+                self.registerErrors(className, methName, e)
         try:
             groups = groupby(iterable, key=__extractKey)
             for date, data in groups:
@@ -181,7 +181,7 @@ class DataExtractor(LogFiles):
         except Exception as e:
             className = self.__class__.__name__
             methName = self.__groupbyDataByDate.__name__
-            self.registerErros(className, methName, e)
+            self.registerErrors(className, methName, e)
 
     def getExtractData(self) -> list:
         '''
@@ -190,7 +190,7 @@ class DataExtractor(LogFiles):
         return self.__extractData
 
 
-class DataProcessor(LogFiles):
+class DataProcessor(LogErrorsMixin):
     '''Processa os dados e prapara-os para entrar no banco de dados.'''
     def __init__(self) -> None:
         self.__dataProcessed: list = []
@@ -229,32 +229,33 @@ class DataProcessor(LogFiles):
         Retorna uma string com a data formatada.
         '''
         try:
+            nD: datetime
             if dateOld[3:6] in self.__numbersOfMonth:
                 for k, v in self.__numbersOfMonth.items():
                     if k == dateOld[3:6]:
-                        nD = dateOld.replace(k, str(v))
-                        if int(nD[3:5].strip()) > 9:
-                            dTStr = f'{nD[5:]}/{nD[3:5]}/{nD[:2]} 00:00:00'.strip()
+                        dO = dateOld.replace(k, str(v))
+                        if int(dO[3:5].strip()) > 9:
+                            dTStr = f'{dO[5:]}/{dO[3:5]}/{dO[:2]} 00:00:00'.strip()
                             nD = datetime.strptime(dTStr, '%Y/%m/%d %H:%M:%S')
                         else:
-                            dTStr = f'{nD[5:]}/{nD[3]}/{nD[:2]} 00:00:00'.strip()
+                            dTStr = f'{dO[5:]}/{dO[3]}/{dO[:2]} 00:00:00'.strip()
                             nD = datetime.strptime(dTStr, '%Y/%m/%d %H:%M:%S')
             else:
                 for k, v in self.__numbersOfMonthEnglish.items():
                     if k == dateOld[3:6]:
-                        nD = dateOld.replace(k, str(v))
-                        if int(nD[3:5].strip()) > 9:
-                            dTStr = f'{nD[5:]}/{nD[3:5]}/{nD[:2]} 00:00:00'.strip()
+                        dO = dateOld.replace(k, str(v))
+                        if int(dO[3:5].strip()) > 9:
+                            dTStr = f'{dO[5:]}/{dO[3:5]}/{dO[:2]} 00:00:00'.strip()
                             nD = datetime.strptime(dTStr, '%Y/%m/%d %H:%M:%S')
                         else:
-                            dTStr = f'{nD[5:]}/{nD[3]}/{nD[:2]} 00:00:00'.strip()
+                            dTStr = f'{dO[5:]}/{dO[3]}/{dO[:2]} 00:00:00'.strip()
                             nD = datetime.strptime(dTStr, '%Y/%m/%d %H:%M:%S')
             newDate = nD.strftime('%Y/%m/%d %H:%M:%S')
             return newDate
         except Exception as e:
             className = self.__class__.__name__
             methName = self.__dateTransformer.__name__
-            self.registerErros(className, methName, e)
+            self.registerErrors(className, methName, e)
 
     def processedData(self, listTarget: list) -> None:
         '''
@@ -344,7 +345,7 @@ class DataProcessor(LogFiles):
         except Exception as e:
             className = self.__class__.__name__
             methName = self.processedData.__name__
-            self.registerErros(className, methName, e)
+            self.registerErrors(className, methName, e)
 
     def getDataProcessed(self) -> list:
         '''
@@ -353,7 +354,7 @@ class DataProcessor(LogFiles):
         return self.__dataProcessed
 
 
-class ConverterMonths(LogFiles):
+class ConverterMonths(LogErrorsMixin):
     '''
         Converte os números dos meses em suas abreviações.
     '''
@@ -396,7 +397,7 @@ class ConverterMonths(LogFiles):
             return self.__numbersOfMonth[numberOfMont]
 
 
-class DailyDate(LogFiles):
+class DailyDate(LogErrorsMixin):
     '''Manipula datas.'''
     def __init__(self) -> None:
         self.__todayDate: datetime = datetime.now()

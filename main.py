@@ -1,13 +1,18 @@
 from toolsClass import DataProcessor, FileRetriever
 from toolsClass import DataExtractor, ConverterMonths, DailyDate
+from DataBaseManager.LogFiles import LogTimeMixin
 from DataBaseManager.databaseSettings import dbCredentials
-from DataBaseManager.OperationalDataBase import OperationDataBase, LogFiles
 from DataBaseManager.OperationalDataBase import DataModel
+from DataBaseManager.OperationalDataBase import OperationDataBase
 import os
 
 
+class MainWorker:
+    pass
+
+
 if __name__ == '__main__':
-    log = LogFiles()
+    log = LogTimeMixin()
     init = log.snapshotTime()
     try:
         log.registerTimeLogStart()
@@ -35,9 +40,9 @@ if __name__ == '__main__':
             dE.extractedDailyData(file, int(day))
             result = dE.getExtractData()
             dP.processedData(result)
-            dM.executeDB(dP.getDataProcessed())
-            dM2.executeDB(dP.getDataProcessed())
-            dM3.executeDB(dP.getDataProcessed())
+            dM.executeInsertDadoDiarioTable(dP.getDataProcessed())
+            dM2.executeInsertDadoDiarioTable(dP.getDataProcessed())
+            dM3.executeInsertDadoDiarioTable(dP.getDataProcessed())
     except Exception as e:
         print(e)
     finally:
