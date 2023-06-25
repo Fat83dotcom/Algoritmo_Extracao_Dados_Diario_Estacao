@@ -1,7 +1,8 @@
-from toolsClass import OperationDataBase, DataProcessor, FileRetriever
-from toolsClass import DataExtractor, ConverterMonths, DailyDate, DataModel
-from toolsClass import LogFiles
-from databaseSettings import dbCredentials
+from toolsClass import DataProcessor, FileRetriever
+from toolsClass import DataExtractor, ConverterMonths, DailyDate
+from DataBaseManager.databaseSettings import dbCredentials
+from DataBaseManager.OperationalDataBase import OperationDataBase, LogFiles
+from DataBaseManager.OperationalDataBase import DataModel
 import os
 
 
