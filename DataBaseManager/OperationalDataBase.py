@@ -1,7 +1,9 @@
 import psycopg
 from abc import ABC
+from psycopg import sql
 from DataBaseManager.LogFiles import LogErrorsMixin
 from DataBaseManager.collumnTables import dado_diario
+from DataBaseManager.databaseSettings import dbCredentials
 
 
 class DataBase(ABC, LogErrorsMixin):
