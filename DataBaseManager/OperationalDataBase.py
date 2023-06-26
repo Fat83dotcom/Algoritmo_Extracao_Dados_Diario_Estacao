@@ -213,9 +213,27 @@ class DataModel(LogErrorsMixin):
                         dataDays['tempOutdoor']['maximum'],
                         dataDays['tempOutdoor']['median'],
                         dataDays['tempOutdoor']['mode']),
+                    table=table,
                     collumn=dado_diario
                 )
             except Exception as e:
                 className = self.__class__.__name__
-                methName = self.executeInsertDadoDiarioTable.__name__
+                methName = self.execInsertDDiario.__name__
                 self.registerErrors(className, methName, e)
+
+
+if __name__ == '__main__':
+    # m = ConverterMonths()
+    # print(m.getMonths('05'))
+
+    bd = OperationDataBase(dbCredentials(4))
+    # bd.insertCollumn(
+    # ('J.Pereira porcalhus',), table='teste', collumn=('nome', )
+    # )
+    bd.updateColumn(
+        table='teste',
+        collumnUpdate='nome',
+        collumnCondicional='codigo',
+        update='Jãozin',
+        conditionalValue='6'
+    )
