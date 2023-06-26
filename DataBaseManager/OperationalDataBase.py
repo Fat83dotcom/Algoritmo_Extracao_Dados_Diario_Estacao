@@ -184,7 +184,7 @@ class DataModel(LogErrorsMixin):
     def __init__(self, dB: OperationDataBase) -> None:
         self.DBInstance = dB
 
-    def executeInsertDadoDiarioTable(self, iterable: list) -> None:
+    def execInsertDDiario(self, table: str, iterable: list) -> None:
         '''
             Insere os dados extraidos no modelo do BD.
             Retorna -> None
