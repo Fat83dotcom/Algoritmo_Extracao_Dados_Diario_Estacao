@@ -172,6 +172,9 @@ class OperationDataBase(DataBase, LogErrorsMixin):
             methName = self.insertCollumn.__name__
             self.registerErrors(className, methName, e)
 
+    def executeSelect(self, method):
+        pass
+
 
 class DataModel(LogErrorsMixin):
     '''
