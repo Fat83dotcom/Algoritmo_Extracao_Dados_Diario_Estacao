@@ -178,7 +178,7 @@ class OperationDataBase(DataBase, LogErrorsMixin):
 
 class DataModel(LogErrorsMixin):
     '''
-        Implementa uma interface para receber os dados e realiza as 
+        Implementa uma interface para receber os dados e realiza as
         transações para cada tabela do banco.
     '''
     def __init__(self, dB: OperationDataBase) -> None:
