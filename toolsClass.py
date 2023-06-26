@@ -51,7 +51,7 @@ class FileRetriever(LogErrorsMixin):
             methName = self.__findFiles.__name__
             self.registerErrors(className, methName, e)
 
-    def findOneFile(self, fileName: str) -> str | None:
+    def findOneFile(self, fileName: str | None) -> str | None:
         '''
             Busca um arquivo na pasta definida pelo seu nome.
             Retorna o caminho do arquivo se ele existir.
