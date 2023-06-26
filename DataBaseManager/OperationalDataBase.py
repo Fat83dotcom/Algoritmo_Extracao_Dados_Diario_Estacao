@@ -16,7 +16,11 @@ class DataBase(ABC, LogErrorsMixin):
         self.user: str = dBConfig['user']
         self.password: str = dBConfig['password']
 
-    def toExecute(self, sql):
+    def toExecute(self, query):
+        '''
+            Abre e fecha conexões, executa transações de qualquer natureza
+            mantendo a segurança mesmo em casos de falha.
+        '''
         try:
             with psycopg.connect(
                 host=self.host,
