@@ -120,11 +120,18 @@ class DataBase(ABC, LogErrorsMixin):
 
 class OperationDataBase(DataBase, LogErrorsMixin):
     '''Realiza as operações com o PostgreSQL'''
-    def __init__(self, table: str, dBConfig: dict) -> None:
-        self.__table = table
+    def __init__(self, dBConfig: dict) -> None:
         super().__init__(dBConfig)
 
-    def updateColumn(self, collumn, condiction, update):
+    def updateColumn(
+        self,
+        table: str,
+        collumnUpdate: str,
+        collumnCondicional: str,
+        update: str,
+        conditionalValue: str,
+        schema='public',
+    ):
         '''
             Atualiza colunas.
             Parametros: collumn -> Nome da coluna
@@ -132,16 +139,23 @@ class OperationDataBase(DataBase, LogErrorsMixin):
             update -> Valor da modificação
         '''
         try:
-            sql = self.SQLUpdateGenerator(
-                update, table_name=self.__table,
-                collumn_name=collumn, condiction=condiction)
-            self.toExecute(sql)
+            query = self.SQLUpdateGenerator(
+                table=table,
+                collumnUpdate=collumnUpdate,
+                collumnCondicional=collumnCondicional,
+                schema=schema,
+                update=update,
+                conditionalValue=conditionalValue
+            )
+            self.toExecute(query)
         except Exception as e:
             className = self.__class__.__name__
             methName = self.updateColumn.__name__
             self.registerErrors(className, methName, e)
 
-    def insertCollumn(self, *args, collumn: str):
+    def insertCollumn(
+        self, *args, table: str, collumn: tuple, schema='public'
+    ):
         '''
             Insere dados na tabela.
             Parametros:
