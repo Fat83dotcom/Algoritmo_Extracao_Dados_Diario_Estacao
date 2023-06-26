@@ -4,9 +4,7 @@ from pathlib import Path
 from itertools import groupby
 from datetime import datetime, timedelta
 from statistics import mean, median, mode
-from DataBaseManager.OperationalDataBase import OperationDataBase
 from DataBaseManager.LogFiles import LogErrorsMixin
-from DataBaseManager.databaseSettings import dbCredentials
 
 
 class FileRetriever(LogErrorsMixin):
