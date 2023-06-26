@@ -163,8 +163,8 @@ class OperationDataBase(DataBase, LogErrorsMixin):
             collumn -> Nome das colunas, na ordem de inserção.
         '''
         try:
-            sql = self.SQLInsertGenerator(
-                *args, colunm_names=collumn, table_name=self.__table
+            query = self.SQLInsertGenerator(
+                *args, table=table, collumn=collumn, schema=schema
             )
             self.toExecute(sql)
         except Exception as e:
