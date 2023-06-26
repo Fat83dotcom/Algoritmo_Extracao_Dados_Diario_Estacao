@@ -425,12 +425,3 @@ class DailyDate(LogErrorsMixin):
         dt = datetime.strptime(str(date), '%Y-%m-%d %H:%M:%S.%f')
         extratcYear = dt.strftime('%Y')
         return extratcYear
-
-
-if __name__ == '__main__':
-    # m = ConverterMonths()
-    # print(m.getMonths('05'))
-
-    bd = OperationDataBase('teste', dbCredentials(4))
-    bd.insertCollumn(('J.Pereira',), collumn='nome')
-    # bd.updateColumn(update='Juvenal', collumn='nome', condiction="codigo in (2, 4)")
