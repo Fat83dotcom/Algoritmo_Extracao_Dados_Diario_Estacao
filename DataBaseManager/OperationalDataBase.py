@@ -73,31 +73,45 @@ class DataBase(ABC, LogErrorsMixin):
             methName = self.placeHolderSQLGenerator.__name__
             self.registerErrors(className, methName, e)
 
-    def SQLInsertGenerator(self, *args, colunm_names=None,  table_name=None):
+    def SQLInsertGenerator(
+        self, *args,
+        collumn: tuple,
+        table: str,
+        schema: str
+    ):
         try:
             values = args[0]
-            pHolders = self.placeHolderSQLGenerator(values)
-            sql = (
-                f"INSERT INTO {table_name} ({colunm_names}) VALUES ({pHolders})",
-                values
-            )
-            return sql
+            query = sql.SQL(
+                "INSERT INTO {table} ({collumn}) VALUES ({pHolders})"
+            ).format(
+                table=sql.Identifier(schema, table),
+                collumn=sql.SQL(', ').join(map(sql.Identifier, collumn)),
+                pHolders=sql.SQL(', ').join(sql.Placeholder() * len(collumn))
+            ), values
+            return query
         except Exception as e:
             className = self.__class__.__name__
             methName = self.SQLInsertGenerator.__name__
             self.registerErrors(className, methName, e)
 
     def SQLUpdateGenerator(
-            self, *args, collumn_name=None, table_name=None, condiction=None
+            self, *args,
+            collumnUpdate: str,
+            collumnCondicional: str,
+            table: str,
+            schema: str,
+            update: str,
+            conditionalValue: str
             ):
         try:
-            values = args
-            pHolders = self.placeHolderSQLGenerator(values)
-            sql = (
-                f"UPDATE {table_name} SET {collumn_name}=({pHolders}) WHERE {condiction}",
-                values
-            )
-            return sql
+            query = sql.SQL(
+                "UPDATE {table} SET {colUp}=%s WHERE {colCon}=%s"
+            ).format(
+                table=sql.Identifier(schema, table),
+                colUp=sql.Identifier(collumnUpdate),
+                colCon=sql.Identifier(collumnCondicional)
+            ), (update, conditionalValue)
+            return query
         except Exception as e:
             className = self.__class__.__name__
             methName = self.SQLUpdateGenerator.__name__
