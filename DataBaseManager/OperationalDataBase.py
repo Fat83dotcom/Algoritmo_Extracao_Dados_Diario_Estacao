@@ -166,7 +166,7 @@ class OperationDataBase(DataBase, LogErrorsMixin):
             query = self.SQLInsertGenerator(
                 *args, table=table, collumn=collumn, schema=schema
             )
-            self.toExecute(sql)
+            self.toExecute(query)
         except Exception as e:
             className = self.__class__.__name__
             methName = self.insertCollumn.__name__
