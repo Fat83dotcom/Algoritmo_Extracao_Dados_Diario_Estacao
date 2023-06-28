@@ -239,3 +239,4 @@ if __name__ == '__main__':
         update='Jãozin',
         conditionalValue='6'
     )
+    data = bd.toExecuteSelect(('select * from teste', ()))
