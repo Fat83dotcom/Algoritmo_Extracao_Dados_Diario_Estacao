@@ -18,8 +18,8 @@ class DataBase(ABC, LogErrorsMixin):
 
     def toExecute(self, query):
         '''
-            Abre e fecha conexões, executa transações de qualquer natureza
-            mantendo a segurança mesmo em casos de falha.
+            Abre e fecha conexões, executa transações de insert e update
+            com segurança mesmo em casos de falha.
         '''
         try:
             with psycopg.connect(
