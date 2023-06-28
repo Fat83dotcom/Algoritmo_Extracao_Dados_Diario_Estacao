@@ -80,10 +80,10 @@ class DataBase(ABC, LogErrorsMixin):
         collumn: tuple,
         table: str,
         schema: str
-    ):
+    ) -> tuple | None:
         try:
             values = args[0]
-            query = sql.SQL(
+            query: tuple | None = sql.SQL(
                 "INSERT INTO {table} ({collumn}) VALUES ({pHolders})"
             ).format(
                 table=sql.Identifier(schema, table),
