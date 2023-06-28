@@ -30,33 +30,35 @@ class DataBase(ABC, LogErrorsMixin):
                 password=self.password
             ) as con:
                 with con.cursor() as cursor:
-                    query, data = query
-                    cursor.execute(query, data)
+                    sQL, data = query
+                    cursor.execute(sQL, data)
         except Exception as e:
             className = self.__class__.__name__
             methName = self.toExecute.__name__
             self.registerErrors(className, methName, e)
 
-    # def toExecute(self, query):
-    #     '''
-    #         Abre e fecha conexões, executa transações de qualquer natureza
-    #         mantendo a segurança mesmo em casos de falha.
-    #     '''
-    #     try:
-    #         with psycopg.connect(
-    #             host=self.host,
-    #             dbname=self.dbname,
-    #             user=self.user,
-    #             port=self.port,
-    #             password=self.password
-    #         ) as con:
-    #             with con.cursor() as cursor:
-    #                 query, data = query
-    #                 cursor.execute(query, data)
-    #     except Exception as e:
-    #         className = self.__class__.__name__
-    #         methName = self.toExecute.__name__
-    #         self.registerErrors(className, methName, e)
+    def toExecuteSelect(self, query) -> list:
+        '''
+            Abre e fecha conexões, executa transações de select
+            com segurança mesmo em casos de falha.
+        '''
+        try:
+            with psycopg.connect(
+                host=self.host,
+                dbname=self.dbname,
+                user=self.user,
+                port=self.port,
+                password=self.password
+            ) as con:
+                with con.cursor() as cursor:
+                    sQL, data = query
+                    cursor.execute(sQL, data)
+                    dataRecovery: list = [x for x in cursor.fetchall()]
+                    return dataRecovery
+        except Exception as e:
+            className = self.__class__.__name__
+            methName = self.toExecute.__name__
+            self.registerErrors(className, methName, e)
 
     def placeHolderSQLGenerator(self, values) -> str | None:
         try:
