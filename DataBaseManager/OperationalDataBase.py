@@ -186,7 +186,28 @@ class DataModel(LogErrorsMixin):
     def __init__(self, dB: OperationDataBase) -> None:
         self.DBInstance = dB
 
-    def execInsertDDiario(self, table: str, iterable: list) -> None:
+    def execInsertTable(self, table: str, iterable: list) -> None:
+        '''
+            Insere os dados extraidos no modelo do BD.
+            Retorna -> None
+        '''
+        raise NotImplementedError('Implemente o metodo em uma subclasse'
+                                  ' relativa a tabela trabalhada')
+
+    def execCreateTable(self, tableName: str) -> None:
+        '''
+            Implementa a estrutura pra criar tabelas.
+            Retorna -> None
+        '''
+        raise NotImplementedError('Implemente o metodo em uma subclasse'
+                                  ' relativa a tabela trabalhada.')
+
+
+class DadoDiarioTable(DataModel):
+    def __init__(self, dB: OperationDataBase) -> None:
+        super().__init__(dB)
+
+    def execInsertTable(self, table: str, iterable: list) -> None:
         '''
             Insere os dados extraidos no modelo do BD.
             Retorna -> None
