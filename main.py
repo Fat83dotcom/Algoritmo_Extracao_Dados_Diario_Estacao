@@ -2,7 +2,7 @@ from toolsClass import DataProcessor, FileRetriever
 from toolsClass import DataExtractor, ConverterMonths, DailyDate
 from DataBaseManager.LogFiles import LogTimeMixin, LogErrorsMixin
 from DataBaseManager.databaseSettings import dbCredentials
-from DataBaseManager.OperationalDataBase import DataModel
+from DataBaseManager.OperationalDataBase import DadoDiarioTable
 from DataBaseManager.OperationalDataBase import OperationDataBase
 import os
 
@@ -11,7 +11,8 @@ class MainWorker(LogTimeMixin, LogErrorsMixin):
     def __init__(self) -> None:
         try:
             self.folderFiles = os.path.join(
-                'home', 'fernando', 'Estacao'
+                'home', 'fernando', 'Área de Trabalho', 'Projeto_Estacao',
+                'Estacao'
             )
             self.dB = OperationDataBase(dbCredentials(1))
             self.dB2 = OperationDataBase(dbCredentials(2))
@@ -21,9 +22,9 @@ class MainWorker(LogTimeMixin, LogErrorsMixin):
             self.dD = DailyDate()
             self.dE = DataExtractor()
             self.dP = DataProcessor()
-            self.dM = DataModel(self.dB)
-            self.dM2 = DataModel(self.dB2)
-            self.dM3 = DataModel(self.dB3)
+            self.dM = DadoDiarioTable(self.dB)
+            self.dM2 = DadoDiarioTable(self.dB2)
+            self.dM3 = DadoDiarioTable(self.dB3)
         except Exception as e:
             className = self.__class__.__name__
             methName = self.__init__.__name__
@@ -36,15 +37,17 @@ class MainWorker(LogTimeMixin, LogErrorsMixin):
             dDiario = 'dado_diario'
             day = self.dD.extractDay(self.dD.yesterdayDate())
             year = self.dD.extractYear(self.dD.yesterdayDate())
-            month = self.cM.getMonths(str(self.dD.extractMonth(self.dD.yesterdayDate())))
+            month = self.cM.getMonths(
+                str(self.dD.extractMonth(self.dD.yesterdayDate()))
+            )
             self.fR.findYesterdayFile(month, year)
             for file in self.fR.getFoundFiles():
                 self.dE.extractedDailyData(file, int(day))
                 result = self.dE.getExtractData()
                 self.dP.processedData(result)
-                self.dM.execInsertDDiario(dDiario, self.dP.getDataProcessed())
-                self.dM2.execInsertDDiario(dDiario, self.dP.getDataProcessed())
-                self.dM3.execInsertDDiario(dDiario, self.dP.getDataProcessed())
+                self.dM.execInsertTable(dDiario, self.dP.getDataProcessed())
+                self.dM2.execInsertTable(dDiario, self.dP.getDataProcessed())
+                self.dM3.execInsertTable(dDiario, self.dP.getDataProcessed())
         except Exception as e:
             print(e)
         finally:
