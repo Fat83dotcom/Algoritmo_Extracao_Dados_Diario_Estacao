@@ -241,7 +241,7 @@ class DadoDiarioTable(DataModel):
                 )
             except Exception as e:
                 className = self.__class__.__name__
-                methName = self.execInsertDDiario.__name__
+                methName = self.execInsertTable.__name__
                 self.registerErrors(className, methName, e)
 
 
