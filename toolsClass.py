@@ -129,7 +129,9 @@ class DataExtractor(LogErrorsMixin):
         retirados do arquivo'''
         try:
             with open(pathFile, 'r', encoding='utf-8') as file:
-                dataFile = [x.replace('\0', '') for x in file.readlines()]
+                dataFile: list = [
+                    x.replace('\0', '') for x in file.readlines()
+                ]
                 extractDataTarget: list = []
                 for data in dataFile[-1::-1]:
                     datas = data[:3].strip()
