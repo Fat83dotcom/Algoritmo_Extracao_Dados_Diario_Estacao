@@ -11,9 +11,12 @@ class MainWorker(LogTimeMixin, LogErrorsMixin):
     def __init__(self) -> None:
         try:
             self.folderFiles = os.path.join(
-                'home', 'fernando', 'Área de Trabalho', 'Projeto_Estacao',
-                'Estacao'
+                'home', 'fernando', 'Estacao'
             )
+            # self.folderFiles = os.path.join(
+            #     'home', 'fernando', 'Área de Trabalho', 'Projeto_Estacao',
+            #     'Estacao'
+            # )
             self.dB = OperationDataBase(dbCredentials(1))
             self.dB2 = OperationDataBase(dbCredentials(2))
             self.dB3 = OperationDataBase(dbCredentials(3))
