@@ -186,6 +186,9 @@ class DataModel(LogErrorsMixin):
     def __init__(self, dB: OperationDataBase) -> None:
         self.DBInstance = dB
 
+    def execUpDateTable(self, table: str, iterable: list) -> None:
+        pass
+
     def execInsertTable(self, table: str, iterable: list) -> None:
         '''
             Insere os dados extraidos no modelo do BD.
@@ -244,6 +247,9 @@ class DadoDiarioTable(DataModel):
                 methName = self.execInsertTable.__name__
                 self.registerErrors(className, methName, e)
 
+    def execUpDateTable(self, table: str, iterable: list) -> None:
+        pass
+
 
 if __name__ == '__main__':
     # m = ConverterMonths()
@@ -260,4 +266,5 @@ if __name__ == '__main__':
         update='Jãozin',
         conditionalValue='6'
     )
+
     data = bd.toExecuteSelect(('select * from teste', ()))
