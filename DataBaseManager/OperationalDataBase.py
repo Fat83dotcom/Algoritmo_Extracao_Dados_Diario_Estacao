@@ -54,7 +54,7 @@ class DataBase(ABC, LogErrorsMixin):
                     sQL, data = query
                     cursor.execute(sQL, data)
                     dataRecovery: list = [x for x in cursor.fetchall()]
-                    return dataRecovery
+            return dataRecovery
         except Exception as e:
             className = self.__class__.__name__
             methName = self.toExecute.__name__
